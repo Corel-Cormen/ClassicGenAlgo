@@ -1,0 +1,13 @@
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core StateMachine Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core StateMachine Widgets)
+
+include_directories(Common)
+
+add_subdirectory(AppContext)
+add_subdirectory(AppStateMachine)
+add_subdirectory(AppTypes)
+add_subdirectory(CommonFunctions)
+add_subdirectory(FaultsManager)
+add_subdirectory(UiDataHolder)
+add_subdirectory(MainDashboard)
+add_subdirectory(Main)
