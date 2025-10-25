@@ -4,6 +4,8 @@
 
 #include <QtTypes>
 
+class RandomCore;
+
 class Genome
 {
 public:
@@ -13,8 +15,10 @@ public:
     inline auto operator[](const size_t idx) const { return genType[idx]; }
 
     [[nodiscard]]
-    bool initGenom(const qreal beginSearch, const qreal endSearch,
-                   const size_t precission);
+    bool createGenom(const qreal beginSearch, const qreal endSearch,
+                     const size_t precission);
+
+    void initGenom(const RandomCore& rand);
 
     qreal val() const;
 

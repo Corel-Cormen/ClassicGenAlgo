@@ -7,6 +7,7 @@
 
 #include "CommonFunctions.hpp"
 #include "FaultsManagerInterface.hpp"
+#include "FunctionObserver.hpp"
 #include "MainWindow.hpp"
 #include "UiDataHolderInterface.hpp"
 
@@ -59,10 +60,12 @@ qint128 validateTextNumber(const QString& text, bool &parseResult)
 
 MainWindow::MainWindow(FaultsManagerInterface &faultsManager,
                        UiDataHolderInterface &uiDataHolder,
+                       FunctionObserver &functionObserver,
                        QWidget *parent) :
     WindowInterface(parent),
     faultsManager{faultsManager},
     uiDataHolder{uiDataHolder},
+    functionObserver{functionObserver},
     ui(new Ui::MainWindow)
 {}
 
@@ -70,6 +73,8 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+#include <QStringListModel>
 
 void MainWindow::load()
 {
@@ -81,8 +86,25 @@ void MainWindow::load()
 
     const auto& uiData = uiDataHolder.getRef();
 
+    QStringList items;
+    for (const auto& funcName : functionObserver.getNames())
+    {
+        items << funcName;
+    }
+
+    QStringListModel *model = new QStringListModel(this);
+    model->setStringList(items);
+    ui->functionsListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->functionsListView->setModel(model);
+    ui->functionsListView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->functionsListView->setCurrentIndex(model->index(uiData.selectFunctionId, 0));
+
     ui->randomSeedLine->setText(QString::number(uiData.randomSeed));
     ui->randomSeedLine->setValidator(
+        new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
+
+    ui->functionDimensionLine->setText(QString::number(uiData.functionDimension));
+    ui->functionDimensionLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
 
     ui->minSearchScopeLine->setText(QString::number(uiData.minSearchRange));
@@ -169,6 +191,8 @@ void MainWindow::resetErrorLine(QLineEdit *lineEdit)
 void MainWindow::onStartCalcButton()
 {
     verifyRandomSeed();
+    verifySelectFunction();
+    verifyFunctionDimension();
     verifySearchRange();
     verifyPrecissionRange();
     verifyPopulation();
@@ -195,6 +219,35 @@ void MainWindow::verifyRandomSeed()
         qDebug() << "Maximum number reached for random seed line:" << seedStr;
         setErrorLine(ui->randomSeedLine);
         faultsManager.updateFault(Faults::INPUT_RANDOM_SEED_ERROR, true);
+    }
+}
+
+void MainWindow::verifySelectFunction()
+{
+    auto& uiData = uiDataHolder.getRef();
+    QModelIndex index = ui->functionsListView->currentIndex();
+    uiData.selectFunctionId = index.row();
+    qDebug() << "Select function:" << ui->functionsListView->currentIndex().data(Qt::DisplayRole).toString();
+}
+
+void MainWindow::verifyFunctionDimension()
+{
+    bool parseStatus = false;
+    auto& uiData = uiDataHolder.getRef();
+
+    const QString funDimStr = ui->functionDimensionLine->text();
+    qint128 parseNumber = validateTextNumber<decltype(uiData.functionDimension)>(funDimStr, parseStatus);
+    if (parseStatus && (parseNumber > 1U))
+    {
+        qDebug() << "Input function dimension:" << parseNumber;
+        uiData.functionDimension = static_cast<decltype(uiData.functionDimension)>(parseNumber);
+        resetErrorLine(ui->functionDimensionLine);
+    }
+    else
+    {
+        qDebug() << "Maximum number reached for function dimension line:" << funDimStr;
+        setErrorLine(ui->functionDimensionLine);
+        faultsManager.updateFault(Faults::INPUT_FUNCTION_PARAMETERS_ERROR, true);
     }
 }
 

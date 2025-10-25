@@ -7,6 +7,7 @@ target_link_libraries(AppTypes
     PRIVATE
     Qt6::Core
     CommonFunctions
+    RandomCore
 )
 
 target_include_directories(AppTypes

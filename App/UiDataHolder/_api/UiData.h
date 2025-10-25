@@ -5,12 +5,14 @@
 
 struct UiData
 {
+    quint8 functionDimension;
+    quint8 precission;
+    quint8 selectFunctionId;
+    quint16 populationQuantity;
+    quint16 generations;
     quint32 randomSeed;
     qreal minSearchRange;
     qreal maxSearchRange;
-    quint8 precission;
-    quint16 populationQuantity;
-    quint16 generations;
 };
 
 #endif // UI_DATA_H

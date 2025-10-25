@@ -12,6 +12,7 @@ class StateMachine : public QObject
 public:
     explicit StateMachine(StateInterface &initState,
                           StateInterface &initrunState,
+                          StateInterface &runState,
                           StateInterface &errorState,
                           StateInterface &shutdownState);
 
@@ -21,6 +22,7 @@ private:
     QStateMachine *machine;
     StateInterface &preinitState;
     StateInterface &initrunState;
+    StateInterface &runState;
     StateInterface &errorState;
     StateInterface &shutdownState;
 };

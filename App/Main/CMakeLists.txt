@@ -15,6 +15,8 @@ target_link_libraries(ClassicGenAlgo
     AppStateMachine
     AppTypes
     FaultsManager
+    Functions
+    GeneticAlgorithm
     MainDashboard
     UiDataHolder
 )

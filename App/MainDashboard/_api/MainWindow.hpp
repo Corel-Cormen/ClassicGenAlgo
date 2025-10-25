@@ -9,12 +9,14 @@ class QLineEdit;
 
 class FaultsManagerInterface;
 class UiDataHolderInterface;
+class FunctionObserver;
 
 class MainWindow : public WindowInterface
 {
 public:
     MainWindow(FaultsManagerInterface &faultsManager,
                UiDataHolderInterface &uiDataHolder,
+               FunctionObserver &functionObserver,
                QWidget *parent = nullptr);
 
     ~MainWindow();
@@ -30,12 +32,15 @@ public:
 private:
     FaultsManagerInterface &faultsManager;
     UiDataHolderInterface &uiDataHolder;
+    FunctionObserver &functionObserver;
     Ui::MainWindow *ui;
 
     static void setErrorLine(QLineEdit *lineEdit);
     static void resetErrorLine(QLineEdit *lineEdit);
 
     void verifyRandomSeed();
+    void verifySelectFunction();
+    void verifyFunctionDimension();
     void verifySearchRange();
     void verifyPrecissionRange();
     void verifyPopulation();

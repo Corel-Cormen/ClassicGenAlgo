@@ -16,6 +16,7 @@ public:
 private:
     FaultsManagerInterface &faultsManager;
     WindowInterface &window;
+    bool isConnectInitialized = false;
 
     void run() override;
 

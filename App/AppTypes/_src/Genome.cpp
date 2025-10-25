@@ -1,9 +1,10 @@
 #include "Genome.hpp"
 #include "CommonFunctions.hpp"
+#include "RandomCore.hpp"
 
-bool Genome::initGenom(const qreal _beginSearch,
-                       const qreal _endSearch,
-                       const size_t _precission)
+bool Genome::createGenom(const qreal _beginSearch,
+                         const qreal _endSearch,
+                         const size_t _precission)
 {
     bool result = false;
     if (CommonFunc::lessEqThan(_beginSearch, _endSearch))
@@ -22,6 +23,14 @@ bool Genome::initGenom(const qreal _beginSearch,
         }
     }
     return result;
+}
+
+void Genome::initGenom(const RandomCore& rand)
+{
+    for(size_t idx = 0; idx < genType.size(); ++idx)
+    {
+        genType[idx] = rand.randUnit<bool>();
+    }
 }
 
 qreal Genome::val() const

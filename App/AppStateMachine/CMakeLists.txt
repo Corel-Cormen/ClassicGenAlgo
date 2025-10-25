@@ -4,11 +4,13 @@ add_library(AppStateMachine STATIC
     _api/PreinitState.hpp
     _api/InitRunState.hpp
     _api/ErrorState.hpp
+    _api/RunState.hpp
     _api/ShutdownState.hpp
     _src/StateMachine.cpp
     _src/PreinitState.cpp
     _src/InitRunState.cpp
     _src/ErrorState.cpp
+    _src/RunState.cpp
     _src/ShutdownState.cpp
 )
 
@@ -18,6 +20,7 @@ target_link_libraries(AppStateMachine
     PRIVATE
     AppContext
     FaultsManager
+    GeneticAlgorithm
     MainDashboard
 )
 

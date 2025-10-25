@@ -17,10 +17,14 @@ void InitRunState::onEntry(QEvent *event)
 
     qDebug() << "Entry to InitRunState";
 
-    connect(&window, &WindowInterface::windowClosed,
-            this, &InitRunState::onWindowClosed);
-    connect(&window, &WindowInterface::triggerCalculate,
-            this, &InitRunState::onTriggerCalculate);
+    if (!isConnectInitialized)
+    {
+        connect(&window, &WindowInterface::windowClosed,
+                this, &InitRunState::onWindowClosed);
+        connect(&window, &WindowInterface::triggerCalculate,
+                this, &InitRunState::onTriggerCalculate);
+        isConnectInitialized = true;
+    }
 
     run();
 }

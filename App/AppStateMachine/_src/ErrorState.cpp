@@ -38,6 +38,9 @@ void ErrorState::run()
         case Faults::INPUT_ALGORITHM_PARAMETRS_ERROR:
             window.showWarningMessage("Verify input algorithm parameters");
             break;
+        case Faults::CREATE_POPULATION_ERROR:
+            window.showWarningMessage("Verify input algorithm parameters - Create population error");
+            break;
         default:
             qDebug() << "Unknow fault id:" << fault;
             break;
