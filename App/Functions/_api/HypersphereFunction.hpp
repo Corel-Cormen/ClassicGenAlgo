@@ -12,5 +12,5 @@ public:
 private:
 
     static constexpr QStringView funcName{u"Hypersphere"};
-    static constexpr QStringView crateFuncName{u"make_schwefel"};
+    static constexpr QStringView crateFuncName{u"make_hypersphere"};
 };

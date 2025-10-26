@@ -56,19 +56,16 @@ bool GeneticAlgorithm::calculate()
         {
             qDebug() << "Create population success";
 
-            // python test
-            std::vector<qreal> pointVec;
-            for(size_t i = 0; i < genomeVec.size(); ++i)
+            for (quint16 generation = 0U; generation < uiData.generations; ++generation)
             {
-                pointVec.push_back(0.0);
+                status = evaluatePopulation();
+                if (!status)
+                {
+                    qDebug() << "Evaluate population error";
+                }
+
+                assessmentPopulation();
             }
-
-            qreal val;
-            bool calcStatus = pyInterface.calcPoint(pointVec, val);
-            qDebug() << "py_test: calcPoint status =" << calcStatus << "val =" << val;
-            // end python test
-
-            // tutaj pętla for dla algorytmu dopóki uiData.generations nie zostanie osiągnięta
         }
 
         if (!status)
@@ -92,11 +89,11 @@ bool GeneticAlgorithm::createPopulation(const UiData& uiData)
     bool status = true;
 
     genomeVec.clear();
-    genomeVec.resize(uiData.functionDimension);
-    for (size_t dim = 0; dim < static_cast<size_t>(uiData.functionDimension); ++dim)
+    genomeVec.resize(uiData.populationQuantity);
+    for (size_t idx = 0; idx < static_cast<size_t>(uiData.populationQuantity); ++idx)
     {
-        genomeVec[dim].reserve(uiData.populationQuantity);
-        for (size_t i = 0; i < static_cast<size_t>(uiData.populationQuantity); ++i)
+        genomeVec[idx].point.reserve(uiData.functionDimension);
+        for (size_t i = 0; i < static_cast<size_t>(uiData.functionDimension); ++i)
         {
             Genome genome;
             if (!genome.createGenom(uiData.minSearchRange,
@@ -107,9 +104,39 @@ bool GeneticAlgorithm::createPopulation(const UiData& uiData)
                 break;
             }
             genome.initGenom(random);
-            genomeVec[dim].push_back(std::move(genome));
+            genomeVec[idx].point.push_back(std::move(genome));
         }
     }
 
     return status;
+}
+
+bool GeneticAlgorithm::evaluatePopulation()
+{
+    bool calcStatus = false;
+
+    for (auto& genomAxisPoint : genomeVec)
+    {
+        std::vector<qreal> point;
+        for (auto& genomPoint : genomAxisPoint.point)
+        {
+            point.push_back(genomPoint.val());
+        }
+
+        calcStatus = pyInterface.calcPoint(point, genomAxisPoint.value);
+        if (!calcStatus)
+        {
+            break;
+        }
+    }
+
+    return calcStatus;
+}
+
+void GeneticAlgorithm::assessmentPopulation()
+{
+    std::sort(genomeVec.begin(), genomeVec.end(),
+              [](const GenomePoint &a, const GenomePoint &b) {
+        return a.value < b.value;
+    });
 }

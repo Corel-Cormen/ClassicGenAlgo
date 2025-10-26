@@ -33,9 +33,17 @@ private:
     PyInterface &pyInterface;
     RandomCore random;
 
-    using FunctionPopulation = std::vector<std::vector<Genome>>;
-    FunctionPopulation genomeVec;
+    struct GenomePoint
+    {
+        std::vector<Genome> point;
+        qreal value;
+    };
+    using GenomePopulation = std::vector<GenomePoint>;
+    GenomePopulation genomeVec;
+
+    bool initEnvironment();
 
     bool createPopulation(const UiData& uiData);
-    bool initEnvironment();
+    bool evaluatePopulation();
+    void assessmentPopulation();
 };

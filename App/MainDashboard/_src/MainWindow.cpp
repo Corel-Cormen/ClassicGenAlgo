@@ -281,6 +281,8 @@ void MainWindow::verifySearchRange()
         CommonFunc::lessThan(min, max) && !CommonFunc::equal(min, max))
     {
         qDebug() << "Search range: [" << min << "," << max << "]";
+        uiData.minSearchRange = min;
+        uiData.maxSearchRange = max;
         resetErrorLine(ui->minSearchScopeLine);
         resetErrorLine(ui->maxSearchScopeLine);
     }
