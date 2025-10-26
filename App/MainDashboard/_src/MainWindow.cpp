@@ -129,28 +129,43 @@ void MainWindow::load()
 
     connect(ui->startCalcButton, &QPushButton::clicked, this,
             &MainWindow::onStartCalcButton);
+
+    show();
+    if (!isVisible())
+    {
+        qDebug() << "Load window error";
+        faultsManager.updateFault(Faults::LOAD_WINDOW_ERROR, true);
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    auto reply = QMessageBox::question(
-        this,
-        tr("Confirm"),
-        tr("Are you sure you want to close the application?"),
-        QMessageBox::Yes | QMessageBox::No
-    );
-
-    if (reply == QMessageBox::Yes)
+    if (faultsManager.isNonRecoverable())
     {
-        qDebug() << "Window will be closed";
+        qDebug() << "Critical fault detected - close application";
         emit windowClosed();
-        event->accept();
-        QMainWindow::closeEvent(event);
     }
     else
     {
-        qDebug() << "Close window canceled";
-        event->ignore();
+        auto reply = QMessageBox::question(
+            this,
+            tr("Confirm"),
+            tr("Are you sure you want to close the application?"),
+            QMessageBox::Yes | QMessageBox::No
+        );
+
+        if (reply == QMessageBox::Yes)
+        {
+            qDebug() << "Window will be closed";
+            emit windowClosed();
+            event->accept();
+            QMainWindow::closeEvent(event);
+        }
+        else
+        {
+            qDebug() << "Close window canceled";
+            event->ignore();
+        }
     }
 }
 

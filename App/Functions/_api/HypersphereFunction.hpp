@@ -5,13 +5,12 @@
 class HypersphereFunction : public FunctionInterface
 {
 public:
-
-    inline QStringView name() const override
-    {
-        return funName;
-    }
+    HypersphereFunction() :
+        FunctionInterface(funcName,crateFuncName)
+    {}
 
 private:
 
-    static constexpr QStringView funName{u"Hypersphere"};
+    static constexpr QStringView funcName{u"Hypersphere"};
+    static constexpr QStringView crateFuncName{u"make_schwefel"};
 };

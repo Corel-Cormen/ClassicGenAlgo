@@ -5,7 +5,9 @@ class GeneticAlgorithmInterface
 public:
     virtual ~GeneticAlgorithmInterface() = default;
 
-    virtual void initProperties() = 0;
+    virtual bool setupInitial() = 0;
 
-    virtual bool initPopulation() = 0;
+    virtual void deinit() = 0;
+
+    virtual bool calculate() = 0;
 };

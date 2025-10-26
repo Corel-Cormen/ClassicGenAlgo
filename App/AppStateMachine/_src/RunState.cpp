@@ -18,7 +18,7 @@ void RunState::onEntry(QEvent *event)
 
 void RunState::run()
 {
-    bool status = geneticAlgorithm.initPopulation();
+    const bool status = geneticAlgorithm.calculate();
 
     if (status)
     {

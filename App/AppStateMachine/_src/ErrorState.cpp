@@ -27,19 +27,23 @@ void ErrorState::run()
         switch (fault)
         {
         case Faults::LOAD_WINDOW_ERROR:
-            window.showCriticalMessage("Load window critical error");
+            window.showCriticalMessage("Load window critical error.");
             break;
         case Faults::INPUT_RANDOM_SEED_ERROR:
-            window.showWarningMessage("Verify input random seed");
+            window.showWarningMessage("Verify input random seed.");
             break;
         case Faults::INPUT_FUNCTION_PARAMETERS_ERROR:
-            window.showWarningMessage("Verify input function parameters");
+            window.showWarningMessage("Verify input function parameters.");
             break;
         case Faults::INPUT_ALGORITHM_PARAMETRS_ERROR:
-            window.showWarningMessage("Verify input algorithm parameters");
+            window.showWarningMessage("Verify input algorithm parameters.");
             break;
-        case Faults::CREATE_POPULATION_ERROR:
-            window.showWarningMessage("Verify input algorithm parameters - Create population error");
+        case Faults::GENETIC_ALGORITHM_ERROR:
+            window.showWarningMessage("Verify input algorithm parameters.\nError algorith during calculate.");
+            break;
+        case Faults::RUN_PYTHON_ERROR:
+        case Faults::PYTHON_FUNC_CALLER_ERROR:
+            window.showCriticalMessage("Run Python error.");
             break;
         default:
             qDebug() << "Unknow fault id:" << fault;

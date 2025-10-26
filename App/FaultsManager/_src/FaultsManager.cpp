@@ -3,6 +3,8 @@
 FaultsManager::FaultsManager()
 {
     faultsArray[Faults::LOAD_WINDOW_ERROR].isCritical = true;
+    faultsArray[Faults::RUN_PYTHON_ERROR].isCritical = true;
+    faultsArray[Faults::PYTHON_FUNC_CALLER_ERROR].isCritical = true;
 }
 
 void FaultsManager::updateFault(Faults::FaultId fault, bool status)

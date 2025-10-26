@@ -24,19 +24,17 @@ void PreinitState::onEntry(QEvent *event)
 
 void PreinitState::run()
 {
-    geneticAlgorithm.initProperties();
+    if (geneticAlgorithm.setupInitial())
+    {
+        window.load();
+    }
 
-    window.load();
-    window.show();
-
-    if (window.isActiveWindow())
+    if (!faultsManager.isNonRecoverable())
     {
         emit finish();
     }
     else
     {
-        qDebug() << "Load window error";
-        faultsManager.updateFault(Faults::LOAD_WINDOW_ERROR, true);
         emit errorDetected();
     }
 }

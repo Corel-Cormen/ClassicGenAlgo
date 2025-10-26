@@ -17,6 +17,7 @@ target_link_libraries(ClassicGenAlgo
     FaultsManager
     Functions
     GeneticAlgorithm
+    PyModule
     MainDashboard
     UiDataHolder
 )
@@ -34,3 +35,12 @@ add_custom_command(TARGET ClassicGenAlgo
             $<TARGET_FILE:ClassicGenAlgo>
     COMMENT "Running windeployqt..."
 )
+
+if (PY_FUNCTION_PATH)
+    add_custom_command(TARGET ClassicGenAlgo POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${PY_FUNCTION_PATH}"
+            "$<TARGET_FILE_DIR:ClassicGenAlgo>/_py"
+        COMMENT "Copy Python test functions from ${PY_FUNCTION_PATH}"
+    )
+endif()

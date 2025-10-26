@@ -4,41 +4,87 @@
 #include "FunctionObserver.hpp"
 #include "GeneticAlgorithm.hpp"
 #include "HypersphereFunction.hpp"
+#include "PyInterface.hpp"
 #include "UiDataHolderInterface.hpp"
 
 GeneticAlgorithm::GeneticAlgorithm(FaultsManagerInterface &faultsManagerRef,
                                    UiDataHolderInterface &uiDataHolderRef,
-                                   FunctionObserver &functionObserverRef) :
+                                   FunctionObserver &functionObserverRef,
+                                   PyInterface &pyInterfaceRef) :
     faultsManager{faultsManagerRef},
     uiDataHolder{uiDataHolderRef},
-    functionObserver{functionObserverRef}
+    functionObserver{functionObserverRef},
+    pyInterface{pyInterfaceRef}
 {}
 
-void GeneticAlgorithm::initProperties()
+bool GeneticAlgorithm::setupInitial()
 {
     uiDataHolder.resetDefault();
     functionObserver.subscribe(std::make_unique<HypersphereFunction>());
+    return initEnvironment();
 }
 
-bool GeneticAlgorithm::initPopulation()
+void GeneticAlgorithm::deinit()
 {
-    bool result = false;
-    const auto& uiData = uiDataHolder.getRef();
+    pyInterface.stopPython();
+}
 
-    random.init(uiData.randomSeed);
-
-    if (createPopulation(uiData))
+bool GeneticAlgorithm::initEnvironment()
+{
+    const bool result = pyInterface.startPython();
+    if (!result)
     {
-        qDebug() << "Create population success";
-        result = true;
+        qDebug() << "Run Python interpreter error";
+        faultsManager.updateFault(Faults::RUN_PYTHON_ERROR, true);
+    }
+    return result;
+}
+
+bool GeneticAlgorithm::calculate()
+{
+    const UiData& uiData = uiDataHolder.getRef();
+
+    functionObserver.choseFunctionId(uiData.selectFunctionId);
+
+    bool status = pyInterface.makeFunction(functionObserver.getSelectFuncName(),
+                                           uiData.functionDimension);
+    if (status)
+    {
+        random.init(uiData.randomSeed);
+        status = createPopulation(uiData);
+        if(status)
+        {
+            qDebug() << "Create population success";
+
+            // python test
+            std::vector<qreal> pointVec;
+            for(size_t i = 0; i < genomeVec.size(); ++i)
+            {
+                pointVec.push_back(0.0);
+            }
+
+            qreal val;
+            bool calcStatus = pyInterface.calcPoint(pointVec, val);
+            qDebug() << "py_test: calcPoint status =" << calcStatus << "val =" << val;
+            // end python test
+
+            // tutaj pętla for dla algorytmu dopóki uiData.generations nie zostanie osiągnięta
+        }
+
+        if (!status)
+        {
+            qDebug() << "Genetic algorithm error";
+            faultsManager.updateFault(Faults::GENETIC_ALGORITHM_ERROR, true);
+        }
     }
     else
     {
-        qDebug() << "Create population error";
-        faultsManager.updateFault(Faults::CREATE_POPULATION_ERROR, true);
+        qDebug() << "Make Function Caller error";
+        faultsManager.updateFault(Faults::PYTHON_FUNC_CALLER_ERROR, true);
     }
+    pyInterface.discardFunction();
 
-    return result;
+    return status;
 }
 
 bool GeneticAlgorithm::createPopulation(const UiData& uiData)

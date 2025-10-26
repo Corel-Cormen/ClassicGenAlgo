@@ -12,6 +12,7 @@ target_link_libraries(GeneticAlgorithm
     Qt6::Core
     FaultsManager
     Functions
+    PyModule
     UiDataHolder
 )
 

@@ -10,6 +10,7 @@
 #include "InitRunState.hpp"
 #include "MainWindow.hpp"
 #include "PreinitState.hpp"
+#include "PyQt.hpp"
 #include "RunState.hpp"
 #include "ShutdownState.hpp"
 #include "StateMachine.hpp"
@@ -24,15 +25,16 @@ public:
         uiDataHolder = std::make_unique<UiDataHolder>();
         faultsManager = std::make_unique<FaultsManager>();
         functionsObserver = std::make_unique<FunctionObserver>();
+        python = std::make_unique<PyQt>();
 
         window = std::make_unique<MainWindow>(*faultsManager, *uiDataHolder, *functionsObserver);
-        geneticAlgorithm = std::make_unique<GeneticAlgorithm>(*faultsManager, *uiDataHolder, *functionsObserver);
+        geneticAlgorithm = std::make_unique<GeneticAlgorithm>(*faultsManager, *uiDataHolder, *functionsObserver, *python);
 
         preinitState = std::make_unique<PreinitState>(*faultsManager, *window, *geneticAlgorithm);
         initrunState = std::make_unique<InitRunState>(*faultsManager, *window);
         runState = std::make_unique<RunState>(*geneticAlgorithm);
         errorState = std::make_unique<ErrorState>(*faultsManager, *window);
-        shutdownState = std::make_unique<ShutdownState>(*context);
+        shutdownState = std::make_unique<ShutdownState>(*context, *geneticAlgorithm);
         machine = std::make_unique<StateMachine>(*preinitState, *initrunState, *runState, *errorState, *shutdownState);
     }
 
@@ -46,6 +48,7 @@ private:
     inline static std::unique_ptr<UiDataHolderInterface> uiDataHolder;
     inline static std::unique_ptr<FaultsManagerInterface> faultsManager;
     inline static std::unique_ptr<FunctionObserver> functionsObserver;
+    inline static std::unique_ptr<PyInterface> python;
 
     inline static std::unique_ptr<WindowInterface> window;
     inline static std::unique_ptr<GeneticAlgorithmInterface> geneticAlgorithm;

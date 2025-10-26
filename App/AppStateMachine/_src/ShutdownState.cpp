@@ -1,11 +1,14 @@
 #include <QDebug>
 
 #include "AppContextInterface.hpp"
+#include "GeneticAlgorithmInterface.hpp"
 #include "ShutdownState.hpp"
 
-ShutdownState::ShutdownState(AppContextInterface &appContextRef) :
+ShutdownState::ShutdownState(AppContextInterface &appContextRef,
+                             GeneticAlgorithmInterface &geneticAlgorithmRef) :
     StateInterface(nullptr),
-    appContext{appContextRef}
+    appContext{appContextRef},
+    geneticAlgorithm{geneticAlgorithmRef}
 {}
 
 void ShutdownState::onEntry(QEvent *event)
@@ -18,5 +21,6 @@ void ShutdownState::onEntry(QEvent *event)
 
 void ShutdownState::run()
 {
+    geneticAlgorithm.deinit();
     appContext.quit();
 }
