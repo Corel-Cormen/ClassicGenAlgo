@@ -1,7 +1,14 @@
 add_library(GeneticAlgorithm STATIC
     _api/GeneticAlgorithm.hpp
     _api/GeneticAlgorithmInterface.hpp
+    _api/GeneticAlgorithmTypes.hpp
+    _api/PopulationFabricBase.hpp
+    _api/RandomPopulationFabric.hpp
+    _api/EvaluateAlgoBase.hpp
+    _api/PyFunctionEvaluateAlgo.hpp
     _src/GeneticAlgorithm.cpp
+    _src/RandomPopulationFabric.cpp
+    _src/PyFunctionEvaluateAlgo.cpp
 )
 
 target_link_libraries(GeneticAlgorithm

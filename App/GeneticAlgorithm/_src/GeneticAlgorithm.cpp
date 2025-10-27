@@ -44,6 +44,9 @@ bool GeneticAlgorithm::calculate()
 {
     const UiData& uiData = uiDataHolder.getRef();
 
+    setGeneratePopulationStrategy<RandomPopulationFabric>(random);
+    setEvaluatePopulationStrategy<PyFunctionEvaluateAlgo>(pyInterface);
+
     functionObserver.choseFunctionId(uiData.selectFunctionId);
 
     bool status = pyInterface.makeFunction(functionObserver.getSelectFuncName(),
@@ -76,7 +79,7 @@ bool GeneticAlgorithm::calculate()
     }
     else
     {
-        qDebug() << "Make Function Caller error";
+        qDebug() << "Make function caller error";
         faultsManager.updateFault(Faults::PYTHON_FUNC_CALLER_ERROR, true);
     }
     pyInterface.discardFunction();
@@ -84,59 +87,62 @@ bool GeneticAlgorithm::calculate()
     return status;
 }
 
-bool GeneticAlgorithm::createPopulation(const UiData& uiData)
+template<typename Strategy, typename... Args>
+void GeneticAlgorithm::setGeneratePopulationStrategy(Args&&... args)
 {
-    bool status = true;
-
-    genomeVec.clear();
-    genomeVec.resize(uiData.populationQuantity);
-    for (size_t idx = 0; idx < static_cast<size_t>(uiData.populationQuantity); ++idx)
+    Strategy *strategyPtr = generatePopulationStrategy ?
+                                std::get_if<Strategy>(&*generatePopulationStrategy) :
+                                nullptr;
+    if (!strategyPtr)
     {
-        genomeVec[idx].point.reserve(uiData.functionDimension);
-        for (size_t i = 0; i < static_cast<size_t>(uiData.functionDimension); ++i)
-        {
-            Genome genome;
-            if (!genome.createGenom(uiData.minSearchRange,
-                                    uiData.maxSearchRange,
-                                    uiData.precission))
-            {
-                status = false;
-                break;
-            }
-            genome.initGenom(random);
-            genomeVec[idx].point.push_back(std::move(genome));
-        }
+        qDebug() << "Use new strategy for generate population:" << typeid(Strategy).name();
+        generatePopulationStrategy.emplace(std::in_place_type<Strategy>,
+                                           std::forward<Args>(args)...);
     }
+}
 
-    return status;
+template<typename Strategy, typename... Args>
+void GeneticAlgorithm::setEvaluatePopulationStrategy(Args&&... args)
+{
+    Strategy *strategyPtr = evaluatePopulationStrategy ?
+                                std::get_if<Strategy>(&*evaluatePopulationStrategy) :
+                                nullptr;
+    if (!strategyPtr)
+    {
+        qDebug() << "Use new strategy for evaluate population:" << typeid(Strategy).name();
+        evaluatePopulationStrategy.emplace(std::in_place_type<Strategy>,
+                                           std::forward<Args>(args)...);
+    }
+}
+
+bool GeneticAlgorithm::createPopulation(const UiData &uiData)
+{
+    bool result = false;
+    if (generatePopulationStrategy)
+    {
+        std::visit([&](auto& strategy) {
+            result = strategy.generate(this->genomeVec, uiData);
+        }, *generatePopulationStrategy);
+    }
+    return result;
 }
 
 bool GeneticAlgorithm::evaluatePopulation()
 {
-    bool calcStatus = false;
-
-    for (auto& genomAxisPoint : genomeVec)
+    bool result = false;
+    if (evaluatePopulationStrategy)
     {
-        std::vector<qreal> point;
-        for (auto& genomPoint : genomAxisPoint.point)
-        {
-            point.push_back(genomPoint.val());
-        }
-
-        calcStatus = pyInterface.calcPoint(point, genomAxisPoint.value);
-        if (!calcStatus)
-        {
-            break;
-        }
+        std::visit([&](auto& strategy) {
+            result = strategy.evaluate(this->genomeVec);
+        }, *evaluatePopulationStrategy);
     }
-
-    return calcStatus;
+    return result;
 }
 
 void GeneticAlgorithm::assessmentPopulation()
 {
     std::sort(genomeVec.begin(), genomeVec.end(),
-              [](const GenomePoint &a, const GenomePoint &b) {
+              [](const auto &a, const auto &b) {
         return a.value < b.value;
     });
 }

@@ -1,10 +1,13 @@
 #pragma once
 
-#include <vector>
+#include <optional>
+#include <variant>
 
 #include "GeneticAlgorithmInterface.hpp"
+#include "GeneticAlgorithmTypes.hpp"
+#include "PyFunctionEvaluateAlgo.hpp"
 #include "RandomCore.hpp"
-#include "Genome.hpp"
+#include "RandomPopulationFabric.hpp"
 
 class FaultsManagerInterface;
 class FunctionObserver;
@@ -33,15 +36,21 @@ private:
     PyInterface &pyInterface;
     RandomCore random;
 
-    struct GenomePoint
-    {
-        std::vector<Genome> point;
-        qreal value;
-    };
-    using GenomePopulation = std::vector<GenomePoint>;
-    GenomePopulation genomeVec;
+    GA::Types::GenomePopulation genomeVec;
+
+    using GeneratePopulationStrategy = std::variant<RandomPopulationFabric>;
+    std::optional<GeneratePopulationStrategy> generatePopulationStrategy;
+
+    using EvaluatePopulationStategy = std::variant<PyFunctionEvaluateAlgo>;
+    std::optional<EvaluatePopulationStategy> evaluatePopulationStrategy;
 
     bool initEnvironment();
+
+    template<typename Strategy, typename... Args>
+    void setGeneratePopulationStrategy(Args&&... args);
+
+    template<typename Strategy, typename... Args>
+    void setEvaluatePopulationStrategy(Args&&... args);
 
     bool createPopulation(const UiData& uiData);
     bool evaluatePopulation();

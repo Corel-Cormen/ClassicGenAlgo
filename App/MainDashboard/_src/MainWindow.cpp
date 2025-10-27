@@ -2,8 +2,9 @@
 
 #include <QCloseEvent>
 #include <QIcon>
-#include <QRegularExpressionValidator>
 #include <QMessageBox>
+#include <QRegularExpressionValidator>
+#include <QStringListModel>
 
 #include "CommonFunctions.hpp"
 #include "FaultsManagerInterface.hpp"
@@ -73,8 +74,6 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-#include <QStringListModel>
 
 void MainWindow::load()
 {
