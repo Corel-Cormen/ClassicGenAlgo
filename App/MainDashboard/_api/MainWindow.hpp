@@ -10,6 +10,7 @@ class QLineEdit;
 class FaultsManagerInterface;
 class UiDataHolderInterface;
 class FunctionObserver;
+struct UiData;
 
 class MainWindow : public WindowInterface
 {
@@ -38,13 +39,15 @@ private:
     static void setErrorLine(QLineEdit *lineEdit);
     static void resetErrorLine(QLineEdit *lineEdit);
 
-    void verifyRandomSeed();
-    void verifySelectFunction();
-    void verifyFunctionDimension();
-    void verifySearchRange();
-    void verifyPrecissionRange();
-    void verifyPopulation();
-    void verifyGenerations();
+    void verifyRandomSeed(UiData &uiData);
+    void verifySelectFunction(UiData &uiData);
+    void verifyFunctionDimension(UiData &uiData);
+    void verifySearchRange(UiData &uiData);
+    void verifyPrecissionRange(UiData &uiData);
+    void verifyPopulation(UiData &uiData);
+    void verifyGenerations(UiData &uiData);
+    void verifySelectAlgo(UiData &uiData);
+    void verifySelectAlgoBestPercentPopulation(UiData &uiData);
 
     static constexpr QLatin1StringView decimalExpression{"^[0-9+\\-]+$"};
     static constexpr QLatin1StringView floatExpression{"^[0-9+\\-.]+$"};

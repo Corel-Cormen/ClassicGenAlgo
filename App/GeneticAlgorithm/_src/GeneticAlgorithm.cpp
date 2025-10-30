@@ -1,3 +1,5 @@
+#include <initializer_list>
+
 #include <QDebug>
 
 #include "FaultsManagerInterface.hpp"
@@ -20,7 +22,12 @@ GeneticAlgorithm::GeneticAlgorithm(FaultsManagerInterface &faultsManagerRef,
 bool GeneticAlgorithm::setupInitial()
 {
     uiDataHolder.resetDefault();
+
+    auto& uiData = uiDataHolder.getRef();
+    uiData.selectAlgoNames = getAlgoName<SelectPopulationStrategy>();
+
     functionObserver.subscribe(std::make_unique<HypersphereFunction>());
+
     return initEnvironment();
 }
 
@@ -46,6 +53,7 @@ bool GeneticAlgorithm::calculate()
 
     setGeneratePopulationStrategy<RandomPopulationFabric>(random);
     setEvaluatePopulationStrategy<PyFunctionEvaluateAlgo>(pyInterface);
+    createSelectPopulationStrategy(uiData);
 
     functionObserver.choseFunctionId(uiData.selectFunctionId);
 
@@ -59,15 +67,26 @@ bool GeneticAlgorithm::calculate()
         {
             qDebug() << "Create population success";
 
-            for (quint16 generation = 0U; generation < uiData.generations; ++generation)
+            // for (quint16 generation = 0U; generation < uiData.generations; ++generation)
             {
                 status = evaluatePopulation();
                 if (!status)
                 {
                     qDebug() << "Evaluate population error";
+                    // break;
                 }
 
-                assessmentPopulation();
+                status = selectPopulation(uiData);
+                if (!status)
+                {
+                    qDebug() << "Select population error";
+                    // break;
+                }
+
+                for (const auto& genome : genomeVec)
+                {
+                    qDebug() << genome.value;
+                }
             }
         }
 
@@ -115,34 +134,84 @@ void GeneticAlgorithm::setEvaluatePopulationStrategy(Args&&... args)
     }
 }
 
+template<typename Strategy, typename... Args>
+void GeneticAlgorithm::setSelectPopulationStrategy(Args&&... args)
+{
+    Strategy *strategyPtr = selectPopulationStrategy ?
+                                std::get_if<Strategy>(&*selectPopulationStrategy) :
+                                nullptr;
+    if (!strategyPtr)
+    {
+        qDebug() << "Use new strategy for select population:" << typeid(Strategy).name();
+        selectPopulationStrategy.emplace(std::in_place_type<Strategy>,
+                                         std::forward<Args>(args)...);
+    }
+}
+
+void GeneticAlgorithm::createSelectPopulationStrategy(const UiData& uiData)
+{
+    switch (uiData.selctAlgoIndex)
+    {
+    case 0U:
+        setSelectPopulationStrategy<BestSelectionAlgo>();
+        break;
+    case 1U:
+        setSelectPopulationStrategy<WorstSelectionAlgo>();
+        break;
+    default:
+        qDebug() << "No choose select strategy";
+    }
+}
+
 bool GeneticAlgorithm::createPopulation(const UiData &uiData)
 {
-    bool result = false;
+    bool status = false;
     if (generatePopulationStrategy)
     {
         std::visit([&](auto& strategy) {
-            result = strategy.generate(this->genomeVec, uiData);
+            status = strategy.generate(this->genomeVec, uiData);
         }, *generatePopulationStrategy);
     }
-    return result;
+    return status;
 }
 
 bool GeneticAlgorithm::evaluatePopulation()
 {
-    bool result = false;
+    bool status = false;
     if (evaluatePopulationStrategy)
     {
         std::visit([&](auto& strategy) {
-            result = strategy.evaluate(this->genomeVec);
+            status = strategy.evaluate(this->genomeVec);
         }, *evaluatePopulationStrategy);
     }
-    return result;
+    return status;
 }
 
-void GeneticAlgorithm::assessmentPopulation()
+bool GeneticAlgorithm::selectPopulation(const UiData& uiData)
 {
-    std::sort(genomeVec.begin(), genomeVec.end(),
-              [](const auto &a, const auto &b) {
-        return a.value < b.value;
-    });
+    bool status = false;
+    if (selectPopulationStrategy)
+    {
+        std::visit([&](auto& strategy) {
+            status = strategy.select(this->genomeVec, uiData);
+        }, *selectPopulationStrategy);
+    }
+    return status;
+}
+
+template<typename Variant>
+std::vector<QStringView> GeneticAlgorithm::getAlgoName()
+{
+    constexpr std::size_t N = std::variant_size_v<Variant>;
+    return getAlgoName_impl<Variant>(std::make_index_sequence<N>{});
+}
+
+template<typename Variant, std::size_t... I>
+std::vector<QStringView> GeneticAlgorithm::getAlgoName_impl(std::index_sequence<I...>)
+{
+    std::vector<QStringView> result{};
+    (void) std::initializer_list<int> {
+        (result.push_back(std::variant_alternative_t<I, Variant>::getAlgoName()), 0)...
+    };
+    return result;
 }

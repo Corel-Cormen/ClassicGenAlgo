@@ -10,4 +10,6 @@ void UiDataHolder::resetDefault()
     uiData.populationQuantity = 10U;
     uiData.generations = 10U;
     uiData.selectFunctionId = 0U;
+    uiData.selctAlgoIndex = 0U;
+    uiData.selectAlgoBestPercentPopulation = 30;
 }

@@ -3,11 +3,13 @@
 #include <optional>
 #include <variant>
 
+#include "BestSelectionAlgo.hpp"
 #include "GeneticAlgorithmInterface.hpp"
 #include "GeneticAlgorithmTypes.hpp"
 #include "PyFunctionEvaluateAlgo.hpp"
 #include "RandomCore.hpp"
 #include "RandomPopulationFabric.hpp"
+#include "WorstSelectionAlgo.hpp"
 
 class FaultsManagerInterface;
 class FunctionObserver;
@@ -44,6 +46,10 @@ private:
     using EvaluatePopulationStategy = std::variant<PyFunctionEvaluateAlgo>;
     std::optional<EvaluatePopulationStategy> evaluatePopulationStrategy;
 
+    using SelectPopulationStrategy = std::variant<BestSelectionAlgo,
+                                                  WorstSelectionAlgo>;
+    std::optional<SelectPopulationStrategy> selectPopulationStrategy;
+
     bool initEnvironment();
 
     template<typename Strategy, typename... Args>
@@ -52,7 +58,18 @@ private:
     template<typename Strategy, typename... Args>
     void setEvaluatePopulationStrategy(Args&&... args);
 
+    template<typename Strategy, typename... Args>
+    void setSelectPopulationStrategy(Args&&... args);
+
+    void createSelectPopulationStrategy(const UiData& uiData);
+
     bool createPopulation(const UiData& uiData);
     bool evaluatePopulation();
-    void assessmentPopulation();
+    bool selectPopulation(const UiData& uiData);
+
+    template<typename Variant>
+    static std::vector<QStringView> getAlgoName();
+
+    template<typename Variant, std::size_t... I>
+    static std::vector<QStringView> getAlgoName_impl(std::index_sequence<I...>);
 };

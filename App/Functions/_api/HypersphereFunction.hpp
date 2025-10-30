@@ -6,7 +6,7 @@ class HypersphereFunction : public FunctionInterface
 {
 public:
     HypersphereFunction() :
-        FunctionInterface(funcName,crateFuncName)
+        FunctionInterface(funcName, crateFuncName)
     {}
 
 private:

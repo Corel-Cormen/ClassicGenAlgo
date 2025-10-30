@@ -1,7 +1,10 @@
 #ifndef UI_DATA_H
 #define UI_DATA_H
 
+#include <vector>
+
 #include <QtTypes>
+#include <QStringView>
 
 struct UiData
 {
@@ -13,6 +16,9 @@ struct UiData
     quint32 randomSeed;
     qreal minSearchRange;
     qreal maxSearchRange;
+    std::vector<QStringView> selectAlgoNames;
+    quint8 selctAlgoIndex;
+    quint8 selectAlgoBestPercentPopulation;
 };
 
 #endif // UI_DATA_H

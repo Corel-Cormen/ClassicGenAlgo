@@ -5,6 +5,8 @@
 class FunctionInterface
 {
 public:
+    FunctionInterface() = delete;
+
     explicit FunctionInterface(QStringView funcName,
                                QStringView crateFuncName) :
         funcName{funcName},
@@ -23,7 +25,7 @@ public:
         return crateFuncName;
     }
 
-protected:
+private:
     QStringView funcName;
     QStringView crateFuncName;
 };

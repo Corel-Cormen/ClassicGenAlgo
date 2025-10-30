@@ -126,6 +126,16 @@ void MainWindow::load()
     ui->generationsLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
 
+    for(const auto& selectAlgoName : uiData.selectAlgoNames)
+    {
+        ui->selectAlgoNameComboBox->addItem(selectAlgoName.toString());
+    }
+    ui->selectAlgoNameComboBox->setCurrentIndex(uiData.selctAlgoIndex);
+
+    ui->selectAlgoBestPercentPopulationLine->setText(QString::number(uiData.selectAlgoBestPercentPopulation));
+    ui->selectAlgoBestPercentPopulationLine->setValidator(
+        new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
+
     connect(ui->startCalcButton, &QPushButton::clicked, this,
             &MainWindow::onStartCalcButton);
 
@@ -204,21 +214,24 @@ void MainWindow::resetErrorLine(QLineEdit *lineEdit)
 
 void MainWindow::onStartCalcButton()
 {
-    verifyRandomSeed();
-    verifySelectFunction();
-    verifyFunctionDimension();
-    verifySearchRange();
-    verifyPrecissionRange();
-    verifyPopulation();
-    verifyGenerations();
+    auto& uiData = uiDataHolder.getRef();
+
+    verifyRandomSeed(uiData);
+    verifySelectFunction(uiData);
+    verifyFunctionDimension(uiData);
+    verifySearchRange(uiData);
+    verifyPrecissionRange(uiData);
+    verifyPopulation(uiData);
+    verifyGenerations(uiData);
+    verifySelectAlgo(uiData);
+    verifySelectAlgoBestPercentPopulation(uiData);
 
     emit triggerCalculate();
 }
 
-void MainWindow::verifyRandomSeed()
+void MainWindow::verifyRandomSeed(UiData &uiData)
 {
     bool parseStatus = false;
-    auto& uiData = uiDataHolder.getRef();
 
     const QString seedStr = ui->randomSeedLine->text();
     qint128 parseNumber = validateTextNumber<decltype(uiData.randomSeed)>(seedStr, parseStatus);
@@ -236,18 +249,16 @@ void MainWindow::verifyRandomSeed()
     }
 }
 
-void MainWindow::verifySelectFunction()
+void MainWindow::verifySelectFunction(UiData &uiData)
 {
-    auto& uiData = uiDataHolder.getRef();
     QModelIndex index = ui->functionsListView->currentIndex();
     uiData.selectFunctionId = index.row();
     qDebug() << "Select function:" << ui->functionsListView->currentIndex().data(Qt::DisplayRole).toString();
 }
 
-void MainWindow::verifyFunctionDimension()
+void MainWindow::verifyFunctionDimension(UiData &uiData)
 {
     bool parseStatus = false;
-    auto& uiData = uiDataHolder.getRef();
 
     const QString funDimStr = ui->functionDimensionLine->text();
     qint128 parseNumber = validateTextNumber<decltype(uiData.functionDimension)>(funDimStr, parseStatus);
@@ -265,11 +276,10 @@ void MainWindow::verifyFunctionDimension()
     }
 }
 
-void MainWindow::verifySearchRange()
+void MainWindow::verifySearchRange(UiData &uiData)
 {
     bool parseMinStatus = false;
     bool parseMaxStatus = false;
-    auto& uiData = uiDataHolder.getRef();
 
     const QString minStr = ui->minSearchScopeLine->text();
     const QString maxStr = ui->maxSearchScopeLine->text();
@@ -294,10 +304,9 @@ void MainWindow::verifySearchRange()
     }
 }
 
-void MainWindow::verifyPrecissionRange()
+void MainWindow::verifyPrecissionRange(UiData &uiData)
 {
     bool parseStatus = false;
-    auto& uiData = uiDataHolder.getRef();
 
     const QString precissionStr = ui->precissionLine->text();
     qint128 parseNumber = validateTextNumber<decltype(uiData.precission)>(precissionStr, parseStatus);
@@ -315,10 +324,9 @@ void MainWindow::verifyPrecissionRange()
     }
 }
 
-void MainWindow::verifyPopulation()
+void MainWindow::verifyPopulation(UiData &uiData)
 {
     bool parseStatus = false;
-    auto& uiData = uiDataHolder.getRef();
 
     const QString populationStr = ui->populationLine->text();
     qint128 parseNumber = validateTextNumber<decltype(uiData.populationQuantity)>(populationStr, parseStatus);
@@ -336,10 +344,9 @@ void MainWindow::verifyPopulation()
     }
 }
 
-void MainWindow::verifyGenerations()
+void MainWindow::verifyGenerations(UiData &uiData)
 {
     bool parseStatus = false;
-    auto& uiData = uiDataHolder.getRef();
 
     const QString generationsStr = ui->generationsLine->text();
     qint128 parseNumber = validateTextNumber<decltype(uiData.generations)>(generationsStr, parseStatus);
@@ -353,6 +360,34 @@ void MainWindow::verifyGenerations()
     {
         qDebug() << "Maximum number reached for generations line:" << generationsStr;
         setErrorLine(ui->generationsLine);
+        faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+    }
+}
+
+void MainWindow::verifySelectAlgo(UiData &uiData)
+{
+    uiData.selctAlgoIndex = ui->selectAlgoNameComboBox->currentIndex();
+    qDebug() << "Choose selection algorithm" << ui->selectAlgoNameComboBox->currentText();
+}
+
+void MainWindow::verifySelectAlgoBestPercentPopulation(UiData &uiData)
+{
+    bool parseStatus = false;
+
+    const QString percentStr = ui->selectAlgoBestPercentPopulationLine->text();
+    qint128 percentNumber =
+        validateTextNumber<decltype(uiData.selectAlgoBestPercentPopulation)>(percentStr, parseStatus);
+    if (parseStatus && (percentNumber > 0U) && (percentNumber <= 50U))
+    {
+        qDebug() << "Select & of best population:" << percentNumber;
+        uiData.selectAlgoBestPercentPopulation =
+            static_cast<decltype(uiData.selectAlgoBestPercentPopulation)>(percentNumber);
+        resetErrorLine(ui->selectAlgoBestPercentPopulationLine);
+    }
+    else
+    {
+        qDebug() << "Maximum number reached for select % for best population line:" << percentStr;
+        setErrorLine(ui->selectAlgoBestPercentPopulationLine);
         faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
     }
 }
