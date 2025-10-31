@@ -11,6 +11,8 @@ int AppContext::run()
     return app->exec();
 }
 
+#include <QPalette>
+
 void AppContext::quit()
 {
     app->quit();

@@ -210,8 +210,8 @@ template<typename Variant, std::size_t... I>
 std::vector<QStringView> GeneticAlgorithm::getAlgoName_impl(std::index_sequence<I...>)
 {
     std::vector<QStringView> result{};
-    (void) std::initializer_list<int> {
-        (result.push_back(std::variant_alternative_t<I, Variant>::getAlgoName()), 0)...
+    (void) std::initializer_list<size_t> {
+        (result.push_back(std::variant_alternative_t<I, Variant>::getAlgoName()), 0U)...
     };
     return result;
 }

@@ -36,8 +36,13 @@ private:
     FunctionObserver &functionObserver;
     Ui::MainWindow *ui;
 
+    QPalette originalPalette{};
+
     static void setErrorLine(QLineEdit *lineEdit);
     static void resetErrorLine(QLineEdit *lineEdit);
+    template<typename T>
+    static void unlockLineEdit(QLineEdit *lineEdit, const QPalette &originalPalette, const T value);
+    static void lockLineEdit(QLineEdit *lineEdit);
 
     void verifyRandomSeed(UiData &uiData);
     void verifySelectFunction(UiData &uiData);
@@ -47,11 +52,12 @@ private:
     void verifyPopulation(UiData &uiData);
     void verifyGenerations(UiData &uiData);
     void verifySelectAlgo(UiData &uiData);
-    void verifySelectAlgoBestPercentPopulation(UiData &uiData);
+    void verifyEliteStrategy(UiData &uiData);
 
     static constexpr QLatin1StringView decimalExpression{"^[0-9+\\-]+$"};
     static constexpr QLatin1StringView floatExpression{"^[0-9+\\-.]+$"};
 
 private slots:
     void onStartCalcButton();
+    void eliteStrategyChangeValue();
 };

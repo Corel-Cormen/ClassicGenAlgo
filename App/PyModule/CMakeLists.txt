@@ -6,8 +6,6 @@ add_library(PyModule STATIC
     _src/PyQt.cpp
 )
 
-# include_directories(${Python3_INCLUDE_DIRS})
-
 target_link_libraries(PyModule
     PRIVATE
     Qt6::Core

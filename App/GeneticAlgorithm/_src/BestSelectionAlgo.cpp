@@ -9,7 +9,7 @@ bool BestSelectionAlgo::select_impl(GA::Types::GenomePopulation &genomeVec,
     constexpr size_t minimumPopulation = 2U;
     const size_t selectPopulation = static_cast<size_t>(
         static_cast<qreal>(genomeVec.size()) *
-        (static_cast<qreal>(uiData.selectAlgoBestPercentPopulation)/100.0));
+        (static_cast<qreal>(uiData.selectAlgoPopulationPercent)/100.0));
 
     if (selectPopulation >= minimumPopulation)
     {

@@ -11,5 +11,7 @@ void UiDataHolder::resetDefault()
     uiData.generations = 10U;
     uiData.selectFunctionId = 0U;
     uiData.selctAlgoIndex = 0U;
-    uiData.selectAlgoBestPercentPopulation = 30;
+    uiData.selectAlgoPopulationPercent = 30;
+    uiData.eliteStrategyEnable = false;
+    uiData.eliteStrategyPercent = 20;
 }
