@@ -1,4 +1,5 @@
 add_library(AppTypes STATIC
+    _api/GeneticAlgorithmTypes.hpp
     _api/Genome.hpp
     _src/Genome.cpp
 )
