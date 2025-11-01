@@ -9,6 +9,7 @@
 #include "PyFunctionEvaluateAlgo.hpp"
 #include "RandomCore.hpp"
 #include "RandomPopulationFabric.hpp"
+#include "SinglePointCrossover.hpp"
 #include "WorstSelectionAlgo.hpp"
 
 class FaultsManagerInterface;
@@ -50,6 +51,9 @@ private:
                                                   WorstSelectionAlgo>;
     std::optional<SelectPopulationStrategy> selectPopulationStrategy;
 
+    using CrossoverPopulationStrategy = std::variant<SinglePointCrossover>;
+    std::optional<CrossoverPopulationStrategy> crossoverPopulationStrategy;
+
     bool initEnvironment();
 
     template<typename Strategy, typename... Args>
@@ -61,11 +65,15 @@ private:
     template<typename Strategy, typename... Args>
     void setSelectPopulationStrategy(Args&&... args);
 
+    template<typename Strategy, typename... Args>
+    void setCrossoverPopulationStrategy(Args&&... args);
+
     void createSelectPopulationStrategy(const UiData& uiData);
 
     bool createPopulation(const UiData& uiData);
     bool evaluatePopulation();
     bool selectPopulation(const UiData& uiData);
+    bool crossoverPopulation(const UiData& uiData);
 
     template<typename Variant>
     static std::vector<QStringView> getAlgoName();

@@ -7,14 +7,10 @@ bool BestSelectionAlgo::select_impl(GA::Types::GenomePopulation &genomeVec,
     bool status = false;
 
     constexpr size_t minimumPopulation = 2U;
-    const size_t selectPopulation = static_cast<size_t>(
-        static_cast<qreal>(genomeVec.size()) *
-        (static_cast<qreal>(uiData.selectAlgoPopulationPercent)/100.0));
-
-    if (selectPopulation >= minimumPopulation)
+    if (uiData.selectAlgoPopulationQuantity >= minimumPopulation)
     {
         populationScore(genomeVec);
-        genomeVec.erase(genomeVec.begin() + selectPopulation, genomeVec.end());
+        genomeVec.erase(genomeVec.begin() + uiData.selectAlgoPopulationQuantity, genomeVec.end());
         status = true;
     }
 

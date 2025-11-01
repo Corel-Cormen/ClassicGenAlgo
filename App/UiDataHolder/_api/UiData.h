@@ -18,9 +18,9 @@ struct UiData
     qreal maxSearchRange;
     std::vector<QStringView> selectAlgoNames;
     quint8 selctAlgoIndex;
-    quint8 selectAlgoPopulationPercent;
+    quint16 selectAlgoPopulationQuantity;
     bool eliteStrategyEnable;
-    quint8 eliteStrategyPercent;
+    quint8 eliteStrategyQuantity;
 };
 
 #endif // UI_DATA_H

@@ -54,6 +54,7 @@ bool GeneticAlgorithm::calculate()
     setGeneratePopulationStrategy<RandomPopulationFabric>(random);
     setEvaluatePopulationStrategy<PyFunctionEvaluateAlgo>(pyInterface);
     createSelectPopulationStrategy(uiData);
+    setCrossoverPopulationStrategy<SinglePointCrossover>();
 
     functionObserver.choseFunctionId(uiData.selectFunctionId);
 
@@ -68,26 +69,36 @@ bool GeneticAlgorithm::calculate()
             qDebug() << "Create population success";
 
             // for (quint16 generation = 0U; generation < uiData.generations; ++generation)
+            do
             {
                 status = evaluatePopulation();
                 if (!status)
                 {
                     qDebug() << "Evaluate population error";
-                    // break;
+                    break;
                 }
 
                 status = selectPopulation(uiData);
                 if (!status)
                 {
                     qDebug() << "Select population error";
-                    // break;
+                    break;
                 }
+                qDebug() << "select len = " << genomeVec.size();
+
+                status = crossoverPopulation(uiData);
+                if (!status)
+                {
+                    qDebug() << "Crossover population error";
+                    break;
+                }
+                qDebug() << "cross len = " << genomeVec.size();
 
                 for (const auto& genome : genomeVec)
                 {
                     qDebug() << genome.value;
                 }
-            }
+            } while(false);
         }
 
         if (!status)
@@ -148,6 +159,20 @@ void GeneticAlgorithm::setSelectPopulationStrategy(Args&&... args)
     }
 }
 
+template<typename Strategy, typename... Args>
+void GeneticAlgorithm::setCrossoverPopulationStrategy(Args&&... args)
+{
+    Strategy *strategyPtr = crossoverPopulationStrategy ?
+                                std::get_if<Strategy>(&*crossoverPopulationStrategy) :
+                                nullptr;
+    if (!strategyPtr)
+    {
+        qDebug() << "Use new strategy for crossover population:" << typeid(Strategy).name();
+        crossoverPopulationStrategy.emplace(std::in_place_type<Strategy>,
+                                            std::forward<Args>(args)...);
+    }
+}
+
 void GeneticAlgorithm::createSelectPopulationStrategy(const UiData& uiData)
 {
     switch (uiData.selctAlgoIndex)
@@ -195,6 +220,18 @@ bool GeneticAlgorithm::selectPopulation(const UiData& uiData)
         std::visit([&](auto& strategy) {
             status = strategy.select(this->genomeVec, uiData);
         }, *selectPopulationStrategy);
+    }
+    return status;
+}
+
+bool GeneticAlgorithm::crossoverPopulation(const UiData& uiData)
+{
+    bool status = false;
+    if (crossoverPopulationStrategy)
+    {
+        std::visit([&](auto& strategy) {
+            status = strategy.crossover(this->genomeVec, uiData);
+        }, *crossoverPopulationStrategy);
     }
     return status;
 }

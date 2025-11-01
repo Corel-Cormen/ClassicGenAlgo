@@ -9,11 +9,14 @@ add_library(GeneticAlgorithm STATIC
     _api/SelectionAlgoBase.hpp
     _api/BestSelectionAlgo.hpp
     _api/WorstSelectionAlgo.hpp
+    _api/CrossoverAlgoBase.hpp
+    _api/SinglePointCrossover.hpp
     _src/GeneticAlgorithm.cpp
     _src/RandomPopulationFabric.cpp
     _src/PyFunctionEvaluateAlgo.cpp
     _src/BestSelectionAlgo.cpp
     _src/WorstSelectionAlgo.cpp
+    _src/SinglePointCrossover.cpp
 )
 
 target_link_libraries(GeneticAlgorithm

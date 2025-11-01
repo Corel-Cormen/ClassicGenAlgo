@@ -132,7 +132,9 @@ void MainWindow::load()
     }
     ui->selectAlgoNameComboBox->setCurrentIndex(uiData.selctAlgoIndex);
 
-    ui->selectAlgoPopulationPercentLine->setText(QString::number(uiData.selectAlgoPopulationPercent));
+    const auto selectAlgoPopulationPercent = CommonFunc::percentOf(uiData.selectAlgoPopulationQuantity,
+                                                                   uiData.populationQuantity);
+    ui->selectAlgoPopulationPercentLine->setText(QString::number(selectAlgoPopulationPercent));
     ui->selectAlgoPopulationPercentLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
 
@@ -339,7 +341,7 @@ void MainWindow::verifyPopulation(UiData &uiData)
 
     const QString populationStr = ui->populationLine->text();
     qint128 parseNumber = validateTextNumber<decltype(uiData.populationQuantity)>(populationStr, parseStatus);
-    if (parseStatus)
+    if (parseStatus && (parseNumber > 1U))
     {
         qDebug() << "Population:" << parseNumber;
         uiData.populationQuantity = static_cast<decltype(uiData.populationQuantity)>(parseNumber);
@@ -363,7 +365,7 @@ void MainWindow::verifyGenerations(UiData &uiData)
     {
         qDebug() << "Generations:" << parseNumber;
         uiData.generations = static_cast<decltype(uiData.generations)>(parseNumber);
-        resetErrorLine(ui->populationLine);
+        resetErrorLine(ui->generationsLine);
     }
     else
     {
@@ -381,13 +383,14 @@ void MainWindow::verifySelectAlgo(UiData &uiData)
     bool parseStatus = false;
 
     const QString percentStr = ui->selectAlgoPopulationPercentLine->text();
-    qint128 percentNumber =
-        validateTextNumber<decltype(uiData.selectAlgoPopulationPercent)>(percentStr, parseStatus);
+    qint128 percentNumber = validateTextNumber<quint8>(percentStr, parseStatus);
     if (parseStatus && (percentNumber > 0U) && (percentNumber <= 50U))
     {
-        qDebug() << "Select percent of population for select algorithm:" << percentNumber;
-        uiData.selectAlgoPopulationPercent =
-            static_cast<decltype(uiData.selectAlgoPopulationPercent)>(percentNumber);
+        const auto selectPopulationQantity = CommonFunc::numberOfPercent<
+            decltype(uiData.selectAlgoPopulationQuantity)>(uiData.populationQuantity,
+                                                           percentNumber);
+        qDebug() << "Calculate quantity of population for select algorithm:" << selectPopulationQantity;
+        uiData.selectAlgoPopulationQuantity = selectPopulationQantity;
         resetErrorLine(ui->selectAlgoPopulationPercentLine);
     }
     else
@@ -402,17 +405,30 @@ void MainWindow::verifyEliteStrategy(UiData &uiData)
 {
     if (ui->eliteStrategyCheckBox->isChecked())
     {
+        uiData.eliteStrategyEnable = true;
         bool parseStatus = false;
 
         const QString percentStr = ui->elitePopulationLine->text();
         qint128 percentNumber =
-            validateTextNumber<decltype(uiData.eliteStrategyPercent)>(percentStr, parseStatus);
-        if (parseStatus && (percentNumber > 0U) &&
-            (percentNumber < uiData.selectAlgoPopulationPercent))
+            validateTextNumber<decltype(uiData.eliteStrategyQuantity)>(percentStr, parseStatus);
+        if (parseStatus && (percentNumber > 0U))
         {
-            qDebug() << "Hold % of best population:" << percentNumber;
-            uiData.eliteStrategyPercent = static_cast<decltype(uiData.eliteStrategyPercent)>(percentNumber);
-            resetErrorLine(ui->elitePopulationLine);
+            const auto elitePopulationQantity = CommonFunc::numberOfPercent<
+                decltype(uiData.eliteStrategyQuantity)>(uiData.populationQuantity,
+                                                        percentNumber);
+            if ((elitePopulationQantity <= uiData.selectAlgoPopulationQuantity) &&
+                (elitePopulationQantity != 0U))
+            {
+                qDebug() << "Hold quantity of best population:" << elitePopulationQantity;
+                uiData.eliteStrategyQuantity = elitePopulationQantity;
+                resetErrorLine(ui->elitePopulationLine);
+            }
+            else
+            {
+                qDebug() << "Elite population quantity value error";
+                setErrorLine(ui->elitePopulationLine);
+                faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+            }
         }
         else
         {
@@ -423,6 +439,7 @@ void MainWindow::verifyEliteStrategy(UiData &uiData)
     }
     else
     {
+        uiData.eliteStrategyEnable = false;
         qDebug("Ignore hold elite strategy");
     }
 }
@@ -432,7 +449,9 @@ void MainWindow::eliteStrategyChangeValue()
     const UiData& uiData = uiDataHolder.getRef();
     if(ui->eliteStrategyCheckBox->isChecked())
     {
-        unlockLineEdit(ui->elitePopulationLine, originalPalette, uiData.eliteStrategyPercent);
+        const auto eliteStrategyPercent = CommonFunc::percentOf(uiData.eliteStrategyQuantity,
+                                                                uiData.populationQuantity);
+        unlockLineEdit(ui->elitePopulationLine, originalPalette, eliteStrategyPercent);
     }
     else
     {
