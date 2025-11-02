@@ -67,4 +67,5 @@ private:
 private slots:
     void onStartCalcButton();
     void eliteStrategyChangeValue();
+    void crossoverStrategyChangeValue();
 };

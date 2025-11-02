@@ -8,7 +8,6 @@ target_link_libraries(EvaluateAlgorithms
     PUBLIC
     AppTypes
     PRIVATE
-    Qt6::Core
     AppTypes
     PyModule
 )

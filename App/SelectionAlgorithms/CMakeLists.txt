@@ -11,7 +11,6 @@ target_link_libraries(SelectionAlgorithms
     AppTypes
     CommonFunctions
     PRIVATE
-    Qt6::Core
     AppTypes
     UiDataHolder
 )

@@ -8,6 +8,8 @@ enum class CrossoverAlgoId : quint8
 {
     SINGLE_POINT = 0,
     TWO_POINT,
+    UNIFORM,
+    DISCRETE,
 };
 
 template <typename Base>

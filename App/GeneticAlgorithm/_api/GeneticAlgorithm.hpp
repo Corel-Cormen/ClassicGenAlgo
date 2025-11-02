@@ -4,6 +4,7 @@
 #include <variant>
 
 #include "BestSelectionAlgo.hpp"
+#include "DiscreteCrossover.hpp"
 #include "GeneticAlgorithmInterface.hpp"
 #include "GeneticAlgorithmTypes.hpp"
 #include "PyFunctionEvaluateAlgo.hpp"
@@ -12,6 +13,7 @@
 #include "SinglePointCrossover.hpp"
 #include "TwoPointCrossover.hpp"
 #include "WorstSelectionAlgo.hpp"
+#include "UniformCrossover.hpp"
 
 class FaultsManagerInterface;
 class FunctionObserver;
@@ -53,7 +55,9 @@ private:
     std::optional<SelectPopulationStrategy> selectPopulationStrategy;
 
     using CrossoverPopulationStrategy = std::variant<SinglePointCrossover,
-                                                     TwoPointCrossover>;
+                                                     TwoPointCrossover,
+                                                     UniformCrossover,
+                                                     DiscreteCrossover>;
     std::optional<CrossoverPopulationStrategy> crossoverPopulationStrategy;
 
     bool initEnvironment();

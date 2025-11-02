@@ -5,8 +5,9 @@ add_library(AppTypes STATIC
 )
 
 target_link_libraries(AppTypes
-    PRIVATE
+    PUBLIC
     Qt6::Core
+    PRIVATE
     CommonFunctions
     RandomCore
 )

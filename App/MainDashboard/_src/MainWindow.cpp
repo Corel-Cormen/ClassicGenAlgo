@@ -138,10 +138,13 @@ void MainWindow::load()
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
 
     setCrossoverAlgoNames(ui->crossoverAlgoComboBox, uiData);
+    connect(ui->crossoverAlgoComboBox, &QComboBox::currentIndexChanged, this,
+            &MainWindow::crossoverStrategyChangeValue);
 
     ui->crossingPropabilityLine->setText(QString::number(uiData.crossingPropablity));
     ui->crossingPropabilityLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{floatExpression}, this));
+    crossoverStrategyChangeValue();
 
     ui->eliteStrategyCheckBox->setChecked(uiData.eliteStrategyEnable);
     originalPalette = ui->elitePopulationLine->palette();
@@ -249,6 +252,12 @@ void MainWindow::setCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData
             break;
         case static_cast<decltype(crossoverAlgoId)>(CrossoverAlgoId::TWO_POINT):
             comboBox->addItem("Two point");
+            break;
+        case static_cast<decltype(crossoverAlgoId)>(CrossoverAlgoId::UNIFORM):
+            comboBox->addItem("Uniform");
+            break;
+        case static_cast<decltype(crossoverAlgoId)>(CrossoverAlgoId::DISCRETE):
+            comboBox->addItem("Discrete");
             break;
         default:
             qDebug() << "Add crossover algorithm not found ID:" << crossoverAlgoId;
@@ -512,6 +521,14 @@ bool MainWindow::verifyCrossoverAlgoBox(QComboBox *comboBox, UiData &uiData)
         uiData.crossoverAlgoIndex =
             static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::TWO_POINT);
         break;
+    case static_cast<qint32>(CrossoverAlgoId::UNIFORM):
+        uiData.crossoverAlgoIndex =
+            static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::UNIFORM);
+        break;
+    case static_cast<qint32>(CrossoverAlgoId::DISCRETE):
+        uiData.crossoverAlgoIndex =
+            static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::DISCRETE);
+        break;
     default:
         result = false;
         break;
@@ -564,9 +581,9 @@ void MainWindow::verifyEliteStrategy(UiData &uiData)
 
 void MainWindow::eliteStrategyChangeValue()
 {
-    const UiData& uiData = uiDataHolder.getRef();
-    if(ui->eliteStrategyCheckBox->isChecked())
+    if (ui->eliteStrategyCheckBox->isChecked())
     {
+        const UiData& uiData = uiDataHolder.getRef();
         const auto eliteStrategyPercent = CommonFunc::percentOf(uiData.eliteStrategyQuantity,
                                                                 uiData.populationQuantity);
         unlockLineEdit(ui->elitePopulationLine, originalPalette, eliteStrategyPercent);
@@ -574,6 +591,22 @@ void MainWindow::eliteStrategyChangeValue()
     else
     {
         lockLineEdit(ui->elitePopulationLine);
+    }
+}
+
+void MainWindow::crossoverStrategyChangeValue()
+{
+    if (ui->crossoverAlgoComboBox->currentIndex() ==
+        static_cast<qint32>(CrossoverAlgoId::UNIFORM))
+    {
+        const UiData& uiData = uiDataHolder.getRef();
+        unlockLineEdit(ui->crossingPropabilityLine,
+                       originalPalette,
+                       uiData.crossingPropablity);
+    }
+    else
+    {
+        lockLineEdit(ui->crossingPropabilityLine);
     }
 }
 

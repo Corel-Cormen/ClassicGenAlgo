@@ -13,6 +13,7 @@ bool TwoPointCrossover::crossover_impl(const UiData &uiData,
                                        GA::Types::GenomePoint &out1,
                                        GA::Types::GenomePoint &out2)
 {
+    (void) uiData;
     out1.point = g1.point;
     out2.point = g2.point;
     const size_t corssIndex1 = random.randNumber<size_t>(1U, g1.point[0].size()-2);

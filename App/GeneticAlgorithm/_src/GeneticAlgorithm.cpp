@@ -200,6 +200,12 @@ void GeneticAlgorithm::createCrossoverPopulationStrategy(const UiData& uiData)
     case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::TWO_POINT):
         setCrossoverPopulationStrategy<TwoPointCrossover>(random);
         break;
+    case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::UNIFORM):
+        setCrossoverPopulationStrategy<UniformCrossover>(random);
+        break;
+    case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::DISCRETE):
+        setCrossoverPopulationStrategy<DiscreteCrossover>(random);
+        break;
     default:
         qDebug() << "No choose select strategy";
     }
