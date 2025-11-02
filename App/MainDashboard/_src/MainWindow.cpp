@@ -488,22 +488,30 @@ void MainWindow::verifyCrossoverAlgo(UiData &uiData)
         faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
     }
 
-    bool parseStatus = false;
-    const QString probabilityStr = ui->crossingPropabilityLine->text();
-    qreal probability = probabilityStr.toDouble(&parseStatus);
-
-    if(parseStatus && CommonFunc::moreEqThan(probability, 0.0) &&
-        CommonFunc::lessEqThan(probability, 1.0))
+    if (uiData.crossoverAlgoIndex ==
+        static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::UNIFORM))
     {
-        qDebug() << "Crossing probability:" << probability;
-        uiData.crossingPropablity = probability;
-        resetErrorLine(ui->crossingPropabilityLine);
+        bool parseStatus = false;
+        const QString probabilityStr = ui->crossingPropabilityLine->text();
+        qreal probability = probabilityStr.toDouble(&parseStatus);
+
+        if(parseStatus && CommonFunc::moreEqThan(probability, 0.0) &&
+            CommonFunc::lessEqThan(probability, 1.0))
+        {
+            qDebug() << "Crossing probability:" << probability;
+            uiData.crossingPropablity = probability;
+            resetErrorLine(ui->crossingPropabilityLine);
+        }
+        else
+        {
+            qDebug() << "Parse error for input crossing probability:" << probabilityStr;
+            setErrorLine(ui->crossingPropabilityLine);
+            faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+        }
     }
     else
     {
-        qDebug() << "Parse error for input crossing probability:" << probabilityStr;
-        setErrorLine(ui->crossingPropabilityLine);
-        faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+        qDebug() << "Not use probability field for crossing algorithm";
     }
 }
 

@@ -16,8 +16,8 @@ bool TwoPointCrossover::crossover_impl(const UiData &uiData,
     (void) uiData;
     out1.point = g1.point;
     out2.point = g2.point;
-    const size_t corssIndex1 = random.randNumber<size_t>(1U, g1.point[0].size()-2);
-    const size_t corssIndex2 = random.randNumber<size_t>(corssIndex1+1, g1.point[0].size());
+    const size_t corssIndex1 = random.randNumber<size_t>(1U, g1.point[0].size()-2U);
+    const size_t corssIndex2 = random.randNumber<size_t>(corssIndex1+1U, g1.point[0].size());
 
     for (size_t pAxis = 0; pAxis < g2.point.size(); ++pAxis)
     {
