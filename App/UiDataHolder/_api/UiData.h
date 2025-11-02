@@ -16,11 +16,12 @@ struct UiData
     quint32 randomSeed;
     qreal minSearchRange;
     qreal maxSearchRange;
-    std::vector<QStringView> selectAlgoNames;
+    std::vector<quint8> selectAlgoNames;
     quint8 selctAlgoIndex;
     quint16 selectAlgoPopulationQuantity;
-    std::vector<QStringView> crossoverAlgoNames;
+    std::vector<quint8> crossoverAlgoNames;
     quint8 crossoverAlgoIndex;
+    qreal crossingPropablity;
     bool eliteStrategyEnable;
     quint8 eliteStrategyQuantity;
 };

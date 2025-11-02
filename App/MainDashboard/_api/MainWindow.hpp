@@ -6,6 +6,7 @@ namespace Ui {
 class MainWindow;
 }
 class QLineEdit;
+class QComboBox;
 
 class FaultsManagerInterface;
 class UiDataHolderInterface;
@@ -38,6 +39,9 @@ private:
 
     QPalette originalPalette{};
 
+    static void setSelectAlgoNames(QComboBox *comboBox, const UiData &uiData);
+    static void setCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData);
+
     static void setErrorLine(QLineEdit *lineEdit);
     static void resetErrorLine(QLineEdit *lineEdit);
     template<typename T>
@@ -52,6 +56,9 @@ private:
     void verifyPopulation(UiData &uiData);
     void verifyGenerations(UiData &uiData);
     void verifySelectAlgo(UiData &uiData);
+    static bool verifySelectAlgoBox(QComboBox *comboBox, UiData &uiData);
+    void verifyCrossoverAlgo(UiData &uiData);
+    static bool verifyCrossoverAlgoBox(QComboBox *comboBox, UiData &uiData);
     void verifyEliteStrategy(UiData &uiData);
 
     static constexpr QLatin1StringView decimalExpression{"^[0-9+\\-]+$"};

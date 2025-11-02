@@ -21,6 +21,8 @@ target_link_libraries(MainDashboard
     FaultsManager
     Functions
     UiDataHolder
+    SelectionAlgorithms
+    CrossoverAlgorithms
 )
 
 target_include_directories(MainDashboard

@@ -10,8 +10,8 @@ class BestSelectionAlgo : public SelectionAlgoBase<BestSelectionAlgo>
 public:
     bool select_impl(GA::Types::GenomePopulation &genomeVec, const UiData &uiData);
 
-    static constexpr QStringView getAlgoName_impl() { return algoName; }
+    static constexpr SelectionAlgoId getAlgoName_impl() { return algoId; }
 
 private:
-    static constexpr QStringView algoName{u"Best selection"};
+    static constexpr SelectionAlgoId algoId{SelectionAlgoId::BEST_SELECTION};
 };

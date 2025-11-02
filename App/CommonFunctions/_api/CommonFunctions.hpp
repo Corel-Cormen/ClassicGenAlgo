@@ -18,9 +18,23 @@ lessThan(T a, T b, T eps = std::numeric_limits<T>::epsilon())
 
 template <typename T>
 std::enable_if_t<std::is_floating_point_v<T>, bool>
+moreThan(T a, T b, T eps = std::numeric_limits<T>::epsilon())
+{
+    return (a + eps) > b;
+}
+
+template <typename T>
+std::enable_if_t<std::is_floating_point_v<T>, bool>
 lessEqThan(T a, T b, T eps = std::numeric_limits<T>::epsilon())
 {
     return (a < b) || (std::fabs(a - b) <= eps);
+}
+
+template <typename T>
+std::enable_if_t<std::is_floating_point_v<T>, bool>
+moreEqThan(T a, T b, T eps = std::numeric_limits<T>::epsilon())
+{
+    return (a > b) || (std::fabs(a - b) <= eps);
 }
 
 template <typename T>

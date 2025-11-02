@@ -10,7 +10,7 @@ public:
     bool crossover_impl(GA::Types::GenomePopulation &genomVec,
                         const UiData& uiData);
 
-    static constexpr QStringView getAlgoName_impl() { return Base::getAlgoName_impl(); }
+    static constexpr CrossoverAlgoId getAlgoName_impl() { return Base::getAlgoName_impl(); }
 
 protected:
     bool crossover_impl(const UiData &uiData,
@@ -109,8 +109,6 @@ CrossoverIndexBase<Base>::crossIndex(const size_t genomSize,
     }
     return result;
 }
-
-#include <QDebug>
 
 template <typename Base>
 bool CrossoverIndexBase<Base>::generateGenom(const GA::Types::GenomePopulation &genomVec,

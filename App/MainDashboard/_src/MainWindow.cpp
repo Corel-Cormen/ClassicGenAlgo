@@ -7,9 +7,11 @@
 #include <QStringListModel>
 
 #include "CommonFunctions.hpp"
+#include "CrossoverAlgoBase.hpp"
 #include "FaultsManagerInterface.hpp"
 #include "FunctionObserver.hpp"
 #include "MainWindow.hpp"
+#include "SelectionAlgoBase.hpp"
 #include "UiDataHolderInterface.hpp"
 
 #include "./ui_mainwindow.h"
@@ -127,11 +129,7 @@ void MainWindow::load()
     ui->generationsLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
 
-    for(const auto& selectAlgoName : uiData.selectAlgoNames)
-    {
-        ui->selectAlgoNameComboBox->addItem(selectAlgoName.toString());
-    }
-    ui->selectAlgoNameComboBox->setCurrentIndex(uiData.selctAlgoIndex);
+    setSelectAlgoNames(ui->selectAlgoNameComboBox, uiData);
 
     const auto selectAlgoPopulationPercent = CommonFunc::percentOf(uiData.selectAlgoPopulationQuantity,
                                                                    uiData.populationQuantity);
@@ -139,11 +137,11 @@ void MainWindow::load()
     ui->selectAlgoPopulationPercentLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
 
-    for(const auto& crossoverAlgoName : uiData.crossoverAlgoNames)
-    {
-        ui->crossoverAlgoComboBox->addItem(crossoverAlgoName.toString());
-    }
-    ui->crossoverAlgoComboBox->setCurrentIndex(uiData.crossoverAlgoIndex);
+    setCrossoverAlgoNames(ui->crossoverAlgoComboBox, uiData);
+
+    ui->crossingPropabilityLine->setText(QString::number(uiData.crossingPropablity));
+    ui->crossingPropabilityLine->setValidator(
+        new QRegularExpressionValidator(QRegularExpression{floatExpression}, this));
 
     ui->eliteStrategyCheckBox->setChecked(uiData.eliteStrategyEnable);
     originalPalette = ui->elitePopulationLine->palette();
@@ -220,6 +218,46 @@ void MainWindow::showWarningMessage(const char* message)
     );
 }
 
+void MainWindow::setSelectAlgoNames(QComboBox *comboBox, const UiData &uiData)
+{
+    for(const auto selectAlgoId : uiData.selectAlgoNames)
+    {
+        switch (selectAlgoId)
+        {
+        case static_cast<decltype(selectAlgoId)>(SelectionAlgoId::BEST_SELECTION):
+            comboBox->addItem("Best selection");
+            break;
+        case static_cast<decltype(selectAlgoId)>(SelectionAlgoId::WORST_SELECTION):
+            comboBox->addItem("Worst selection");
+            break;
+        default:
+            qDebug() << "Add select algorithm not found ID:" << selectAlgoId;
+            break;
+        }
+    }
+    comboBox->setCurrentIndex(uiData.selctAlgoIndex);
+}
+
+void MainWindow::setCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData)
+{
+    for(const auto crossoverAlgoId : uiData.crossoverAlgoNames)
+    {
+        switch (crossoverAlgoId)
+        {
+        case static_cast<decltype(crossoverAlgoId)>(CrossoverAlgoId::SINGLE_POINT):
+            comboBox->addItem("Signle point");
+            break;
+        case static_cast<decltype(crossoverAlgoId)>(CrossoverAlgoId::TWO_POINT):
+            comboBox->addItem("Two point");
+            break;
+        default:
+            qDebug() << "Add crossover algorithm not found ID:" << crossoverAlgoId;
+            break;
+        }
+    }
+    comboBox->setCurrentIndex(uiData.crossoverAlgoIndex);
+}
+
 void MainWindow::setErrorLine(QLineEdit *lineEdit)
 {
     lineEdit->setStyleSheet("QLineEdit { border: 2px solid red; }");
@@ -242,6 +280,7 @@ void MainWindow::onStartCalcButton()
     verifyPopulation(uiData);
     verifyGenerations(uiData);
     verifySelectAlgo(uiData);
+    verifyCrossoverAlgo(uiData);
     verifyEliteStrategy(uiData);
 
     emit triggerCalculate();
@@ -384,8 +423,11 @@ void MainWindow::verifyGenerations(UiData &uiData)
 
 void MainWindow::verifySelectAlgo(UiData &uiData)
 {
-    uiData.selctAlgoIndex = ui->selectAlgoNameComboBox->currentIndex();
-    qDebug() << "Choose selection algorithm" << ui->selectAlgoNameComboBox->currentText();
+    if(!verifySelectAlgoBox(ui->selectAlgoNameComboBox, uiData))
+    {
+        qDebug() << "Chose not supported select algorithm";
+        faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+    }
 
     bool parseStatus = false;
 
@@ -406,6 +448,75 @@ void MainWindow::verifySelectAlgo(UiData &uiData)
         setErrorLine(ui->selectAlgoPopulationPercentLine);
         faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
     }
+}
+
+bool MainWindow::verifySelectAlgoBox(QComboBox *comboBox, UiData &uiData)
+{
+    bool status = true;
+    qDebug() << "Choose selection algorithm" << comboBox->currentText();
+    switch (comboBox->currentIndex())
+    {
+    case static_cast<qint32>(SelectionAlgoId::BEST_SELECTION):
+        uiData.selctAlgoIndex =
+            static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::BEST_SELECTION);
+        break;
+    case static_cast<qint32>(SelectionAlgoId::WORST_SELECTION):
+        uiData.selctAlgoIndex =
+            static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::WORST_SELECTION);
+        break;
+    default:
+        status = false;
+        break;
+    }
+    return status;
+}
+
+void MainWindow::verifyCrossoverAlgo(UiData &uiData)
+{
+    if(!verifyCrossoverAlgoBox(ui->crossoverAlgoComboBox, uiData))
+    {
+        qDebug() << "Chose not supported crossover algorithm";
+        faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+    }
+
+    bool parseStatus = false;
+    const QString probabilityStr = ui->crossingPropabilityLine->text();
+    qreal probability = probabilityStr.toDouble(&parseStatus);
+
+    if(parseStatus && CommonFunc::moreEqThan(probability, 0.0) &&
+        CommonFunc::lessEqThan(probability, 1.0))
+    {
+        qDebug() << "Crossing probability:" << probability;
+        uiData.crossingPropablity = probability;
+        resetErrorLine(ui->crossingPropabilityLine);
+    }
+    else
+    {
+        qDebug() << "Parse error for input crossing probability:" << probabilityStr;
+        setErrorLine(ui->crossingPropabilityLine);
+        faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+    }
+}
+
+bool MainWindow::verifyCrossoverAlgoBox(QComboBox *comboBox, UiData &uiData)
+{
+    bool result = true;
+    qDebug() << "Choose crossover algorithm" << comboBox->currentText();
+    switch (comboBox->currentIndex())
+    {
+    case static_cast<qint32>(CrossoverAlgoId::SINGLE_POINT):
+        uiData.crossoverAlgoIndex =
+            static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::SINGLE_POINT);
+        break;
+    case static_cast<qint32>(CrossoverAlgoId::TWO_POINT):
+        uiData.crossoverAlgoIndex =
+            static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::TWO_POINT);
+        break;
+    default:
+        result = false;
+        break;
+    }
+    return result;
 }
 
 void MainWindow::verifyEliteStrategy(UiData &uiData)

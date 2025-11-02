@@ -1,10 +1,14 @@
 #pragma once
 
-#include <QStringView>
-
 #include "GeneticAlgorithmTypes.hpp"
 
 struct UiData;
+
+enum class CrossoverAlgoId : quint8
+{
+    SINGLE_POINT = 0,
+    TWO_POINT,
+};
 
 template <typename Base>
 class CrossoverAlgoBase
@@ -15,5 +19,5 @@ public:
         return static_cast<Base*>(this)->crossover_impl(genomVec, uiData);
     }
 
-    static constexpr QStringView getAlgoName() { return Base::getAlgoName_impl(); }
+    static constexpr CrossoverAlgoId getAlgoName() { return Base::getAlgoName_impl(); }
 };

@@ -55,7 +55,7 @@ bool GeneticAlgorithm::calculate()
     setGeneratePopulationStrategy<RandomPopulationFabric>(random);
     setEvaluatePopulationStrategy<PyFunctionEvaluateAlgo>(pyInterface);
     createSelectPopulationStrategy(uiData);
-    setCrossoverPopulationStrategy<TwoPointCrossover>(random);
+    createCrossoverPopulationStrategy(uiData);
 
     functionObserver.choseFunctionId(uiData.selectFunctionId);
 
@@ -179,11 +179,26 @@ void GeneticAlgorithm::createSelectPopulationStrategy(const UiData& uiData)
 {
     switch (uiData.selctAlgoIndex)
     {
-    case 0U:
+    case static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::BEST_SELECTION):
         setSelectPopulationStrategy<BestSelectionAlgo>();
         break;
-    case 1U:
+    case static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::WORST_SELECTION):
         setSelectPopulationStrategy<WorstSelectionAlgo>();
+        break;
+    default:
+        qDebug() << "No choose select strategy";
+    }
+}
+
+void GeneticAlgorithm::createCrossoverPopulationStrategy(const UiData& uiData)
+{
+    switch (uiData.crossoverAlgoIndex)
+    {
+    case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::SINGLE_POINT):
+        setCrossoverPopulationStrategy<SinglePointCrossover>(random);
+        break;
+    case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::TWO_POINT):
+        setCrossoverPopulationStrategy<TwoPointCrossover>(random);
         break;
     default:
         qDebug() << "No choose select strategy";
@@ -239,18 +254,19 @@ bool GeneticAlgorithm::crossoverPopulation(const UiData& uiData)
 }
 
 template<typename Variant>
-std::vector<QStringView> GeneticAlgorithm::getAlgoName()
+std::vector<quint8> GeneticAlgorithm::getAlgoName()
 {
     constexpr std::size_t N = std::variant_size_v<Variant>;
     return getAlgoName_impl<Variant>(std::make_index_sequence<N>{});
 }
 
 template<typename Variant, std::size_t... I>
-std::vector<QStringView> GeneticAlgorithm::getAlgoName_impl(std::index_sequence<I...>)
+std::vector<quint8> GeneticAlgorithm::getAlgoName_impl(std::index_sequence<I...>)
 {
-    std::vector<QStringView> result{};
+    std::vector<quint8> result{};
     (void) std::initializer_list<size_t> {
-        (result.push_back(std::variant_alternative_t<I, Variant>::getAlgoName()), 0U)...
+        (result.push_back(static_cast<quint8>(
+             std::variant_alternative_t<I, Variant>::getAlgoName())), 0U)...
     };
     return result;
 }

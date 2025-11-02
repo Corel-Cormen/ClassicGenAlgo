@@ -71,6 +71,7 @@ private:
     void setCrossoverPopulationStrategy(Args&&... args);
 
     void createSelectPopulationStrategy(const UiData& uiData);
+    void createCrossoverPopulationStrategy(const UiData& uiData);
 
     bool createPopulation(const UiData& uiData);
     bool evaluatePopulation();
@@ -78,8 +79,8 @@ private:
     bool crossoverPopulation(const UiData& uiData);
 
     template<typename Variant>
-    static std::vector<QStringView> getAlgoName();
+    static std::vector<quint8> getAlgoName();
 
     template<typename Variant, std::size_t... I>
-    static std::vector<QStringView> getAlgoName_impl(std::index_sequence<I...>);
+    static std::vector<quint8> getAlgoName_impl(std::index_sequence<I...>);
 };

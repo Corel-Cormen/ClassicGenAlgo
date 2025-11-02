@@ -15,10 +15,10 @@ public:
                         GA::Types::GenomePoint &out1,
                         GA::Types::GenomePoint &out2);
 
-    static constexpr QStringView getAlgoName_impl() { return algoName; }
+    static constexpr CrossoverAlgoId getAlgoName_impl() { return algoId; }
 
 private:
-    static constexpr QStringView algoName{u"Single point"};
+    static constexpr CrossoverAlgoId algoId{CrossoverAlgoId::SINGLE_POINT};
 
     const RandomCore &random;
 };
