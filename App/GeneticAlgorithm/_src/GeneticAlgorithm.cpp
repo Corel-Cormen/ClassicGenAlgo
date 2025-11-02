@@ -25,6 +25,7 @@ bool GeneticAlgorithm::setupInitial()
 
     auto& uiData = uiDataHolder.getRef();
     uiData.selectAlgoNames = getAlgoName<SelectPopulationStrategy>();
+    uiData.crossoverAlgoNames = getAlgoName<CrossoverPopulationStrategy>();
 
     functionObserver.subscribe(std::make_unique<HypersphereFunction>());
 
@@ -54,7 +55,7 @@ bool GeneticAlgorithm::calculate()
     setGeneratePopulationStrategy<RandomPopulationFabric>(random);
     setEvaluatePopulationStrategy<PyFunctionEvaluateAlgo>(pyInterface);
     createSelectPopulationStrategy(uiData);
-    setCrossoverPopulationStrategy<SinglePointCrossover>();
+    setCrossoverPopulationStrategy<TwoPointCrossover>(random);
 
     functionObserver.choseFunctionId(uiData.selectFunctionId);
 
@@ -98,7 +99,8 @@ bool GeneticAlgorithm::calculate()
                 {
                     qDebug() << genome.value;
                 }
-            } while(false);
+            }
+            while(false);
         }
 
         if (!status)

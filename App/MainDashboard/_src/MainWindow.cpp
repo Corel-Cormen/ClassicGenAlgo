@@ -97,6 +97,7 @@ void MainWindow::load()
     ui->functionsListView->setModel(model);
     ui->functionsListView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->functionsListView->setCurrentIndex(model->index(uiData.selectFunctionId, 0));
+    ui->label_14->setVisible(false);
 
     ui->randomSeedLine->setText(QString::number(uiData.randomSeed));
     ui->randomSeedLine->setValidator(
@@ -137,6 +138,12 @@ void MainWindow::load()
     ui->selectAlgoPopulationPercentLine->setText(QString::number(selectAlgoPopulationPercent));
     ui->selectAlgoPopulationPercentLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
+
+    for(const auto& crossoverAlgoName : uiData.crossoverAlgoNames)
+    {
+        ui->crossoverAlgoComboBox->addItem(crossoverAlgoName.toString());
+    }
+    ui->crossoverAlgoComboBox->setCurrentIndex(uiData.crossoverAlgoIndex);
 
     ui->eliteStrategyCheckBox->setChecked(uiData.eliteStrategyEnable);
     originalPalette = ui->elitePopulationLine->palette();

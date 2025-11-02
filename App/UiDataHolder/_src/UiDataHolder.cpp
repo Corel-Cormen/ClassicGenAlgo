@@ -12,6 +12,7 @@ void UiDataHolder::resetDefault()
     uiData.selectFunctionId = 0U;
     uiData.selctAlgoIndex = 0U;
     uiData.selectAlgoPopulationQuantity = 3;
+    uiData.crossoverAlgoIndex = 0U;
     uiData.eliteStrategyEnable = false;
     uiData.eliteStrategyQuantity = 2;
 }

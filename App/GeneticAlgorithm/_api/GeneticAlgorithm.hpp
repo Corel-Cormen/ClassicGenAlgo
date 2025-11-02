@@ -10,6 +10,7 @@
 #include "RandomCore.hpp"
 #include "RandomPopulationFabric.hpp"
 #include "SinglePointCrossover.hpp"
+#include "TwoPointCrossover.hpp"
 #include "WorstSelectionAlgo.hpp"
 
 class FaultsManagerInterface;
@@ -51,7 +52,8 @@ private:
                                                   WorstSelectionAlgo>;
     std::optional<SelectPopulationStrategy> selectPopulationStrategy;
 
-    using CrossoverPopulationStrategy = std::variant<SinglePointCrossover>;
+    using CrossoverPopulationStrategy = std::variant<SinglePointCrossover,
+                                                     TwoPointCrossover>;
     std::optional<CrossoverPopulationStrategy> crossoverPopulationStrategy;
 
     bool initEnvironment();

@@ -33,6 +33,19 @@ public:
         }
     }
 
+    template<typename T>
+    T randNumber(const T num1, const T num2) const
+    {
+        if constexpr (std::is_integral_v<T>)
+        {
+            return static_cast<T>(generator.bounded(num1, num2));
+        }
+        else
+        {
+            static_assert(std::is_arithmetic_v<T>, "Rand core required integral type");
+        }
+    }
+
 private:
     mutable QRandomGenerator generator;
 };

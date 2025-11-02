@@ -19,6 +19,8 @@ struct UiData
     std::vector<QStringView> selectAlgoNames;
     quint8 selctAlgoIndex;
     quint16 selectAlgoPopulationQuantity;
+    std::vector<QStringView> crossoverAlgoNames;
+    quint8 crossoverAlgoIndex;
     bool eliteStrategyEnable;
     quint8 eliteStrategyQuantity;
 };

@@ -10,12 +10,16 @@ public:
     bool crossover_impl(GA::Types::GenomePopulation &genomVec,
                         const UiData& uiData);
 
+    static constexpr QStringView getAlgoName_impl() { return Base::getAlgoName_impl(); }
+
 protected:
-    bool crossover_impl(const GA::Types::GenomePoint &g1,
+    bool crossover_impl(const UiData &uiData,
+                        const GA::Types::GenomePoint &g1,
                         const GA::Types::GenomePoint &g2,
-                        GA::Types::GenomePoint &out)
+                        GA::Types::GenomePoint &out1,
+                        GA::Types::GenomePoint &out2)
     {
-        return static_cast<Base*>(this)->crossover_impl(g1, g2, out);
+        return static_cast<Base*>(this)->crossover_impl(uiData, g1, g2, out1, out2);
     }
 
 private:
@@ -25,7 +29,7 @@ private:
 
     bool generateGenom(const GA::Types::GenomePopulation &genomVec,
                        const std::vector<CrossIndex> &indexLUT,
-                       const size_t populationSize,
+                       const UiData &uiData,
                        GA::Types::GenomePopulation &resultVec);
 
     void holdElite(const GA::Types::GenomePopulation &genomVec,
@@ -35,7 +39,7 @@ private:
 
 template <typename Base>
 bool CrossoverIndexBase<Base>::crossover_impl(GA::Types::GenomePopulation &genomVec,
-                                              const UiData& uiData)
+                                              const UiData &uiData)
 {
     bool status = true;
 
@@ -55,7 +59,7 @@ bool CrossoverIndexBase<Base>::crossover_impl(GA::Types::GenomePopulation &genom
 
         status = generateGenom(genomVec,
                                indexLUT,
-                               uiData.populationQuantity,
+                               uiData,
                                resultVec);
         if (status)
         {
@@ -75,7 +79,6 @@ std::vector<typename CrossoverIndexBase<Base>::CrossIndex>
 CrossoverIndexBase<Base>::crossIndex(const size_t genomSize,
                                      const size_t maxSize)
 {
-    size_t len = 0;
     std::vector<CrossIndex> result{};
     if(genomSize > 2U)
     {
@@ -86,19 +89,15 @@ CrossoverIndexBase<Base>::crossIndex(const size_t genomSize,
                 for (size_t a = 0U; a < k; ++a)
                 {
                     result.emplace_back(a, k);
-                    result.emplace_back(k, a);
                 }
             }
             else
             {
                 size_t a0 = k - 1U;
                 result.emplace_back(a0, k);
-                result.emplace_back(k, a0);
                 for (size_t a = 0U; (a + 1U) < k; ++a)
                 {
                     result.emplace_back(a, k);
-                    result.emplace_back(k, a);
-                    ++len;
                 }
             }
 
@@ -111,29 +110,39 @@ CrossoverIndexBase<Base>::crossIndex(const size_t genomSize,
     return result;
 }
 
+#include <QDebug>
+
 template <typename Base>
 bool CrossoverIndexBase<Base>::generateGenom(const GA::Types::GenomePopulation &genomVec,
                                              const std::vector<CrossIndex> &indexLUT,
-                                             const size_t populationSize,
+                                             const UiData &uiData,
                                              GA::Types::GenomePopulation &resultVec)
 {
     bool status = true;
 
-    while (resultVec.size() != populationSize)
+    while (resultVec.size() != uiData.populationQuantity)
     {
         for (const auto &index : indexLUT)
         {
-            GA::Types::GenomePoint crossGenom{};
-            if(!crossover_impl(genomVec[index.first],
+            GA::Types::GenomePoint crossGenom1{};
+            GA::Types::GenomePoint crossGenom2{};
+            if(!crossover_impl(uiData,
+                                genomVec[index.first],
                                 genomVec[index.second],
-                                crossGenom))
+                                crossGenom1,
+                                crossGenom2))
             {
                 status = false;
                 break;
             }
-            resultVec.push_back(std::move(crossGenom));
+            resultVec.push_back(std::move(crossGenom1));
 
-            if(resultVec.size() == populationSize)
+            if ((resultVec.size() != (uiData.populationQuantity)) &&
+                !crossGenom2.point.empty())
+            {
+                resultVec.push_back(std::move(crossGenom2));
+            }
+            if (resultVec.size() == uiData.populationQuantity)
             {
                 break;
             }

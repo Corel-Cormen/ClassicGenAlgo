@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QStringView>
+
 #include "GeneticAlgorithmTypes.hpp"
 
 struct UiData;
@@ -12,4 +14,6 @@ public:
     {
         return static_cast<Base*>(this)->crossover_impl(genomVec, uiData);
     }
+
+    static constexpr QStringView getAlgoName() { return Base::getAlgoName_impl(); }
 };
