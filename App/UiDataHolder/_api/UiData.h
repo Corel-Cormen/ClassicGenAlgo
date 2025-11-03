@@ -23,7 +23,7 @@ struct UiData
     quint8 crossoverAlgoIndex;
     qreal crossingPropablity;
     bool eliteStrategyEnable;
-    quint8 eliteStrategyQuantity;
+    quint16 eliteStrategyQuantity;
 };
 
 #endif // UI_DATA_H

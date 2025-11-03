@@ -19,7 +19,10 @@ public:
     bool calcPoint(const std::vector<qreal>& point, qreal &val) override;
 
 private:
+    static constexpr QStringView PyMainPath{u"../python"};
     static constexpr QStringView PyModulePath{u"_py"};
     static constexpr QStringView PyModuleName{u"functions"};
     static constexpr QStringView PyCalcFunctionName{u"call_func"};
+
+    static bool pyInitConfig();
 };

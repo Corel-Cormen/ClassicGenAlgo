@@ -18,6 +18,7 @@ bool PyQt::startPython()
 
     if (!Py_IsInitialized())
     {
+        pyInitConfig();
         Py_Initialize();
 
         PyObject* sysPath = PySys_GetObject("path");
@@ -41,6 +42,27 @@ bool PyQt::startPython()
     }
 
     return ((Py_IsInitialized() == 1) && pyModuleHandler) ? true : false;
+}
+
+bool PyQt::pyInitConfig()
+{
+    bool result = false;
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
+
+    PyStatus status = PyConfig_SetString(&config, &config.home,
+                                         PyMainPath.toString().toStdWString().data());
+    if (!PyStatus_Exception(status))
+    {
+        status = Py_InitializeFromConfig(&config);
+        if (!PyStatus_Exception(status))
+        {
+            result = true;
+        }
+    }
+
+    PyConfig_Clear(&config);
+    return result;
 }
 
 void PyQt::stopPython()

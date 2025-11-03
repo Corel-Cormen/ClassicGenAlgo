@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
+set(PY_VERSION "3.12.1" CACHE STRING "Embed Python version to download")
+set(PY_PLATFORM "64" CACHE STRING "Target platform architecture (x64 or x86)")
+
 project(ClassicGenAlgo VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
