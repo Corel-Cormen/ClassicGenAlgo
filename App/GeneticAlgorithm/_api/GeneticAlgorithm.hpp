@@ -10,9 +10,9 @@
 #include "PyFunctionEvaluateAlgo.hpp"
 #include "RandomCore.hpp"
 #include "RandomPopulationFabric.hpp"
+#include "RouletteSelectionAlgo.hpp"
 #include "SinglePointCrossover.hpp"
 #include "TwoPointCrossover.hpp"
-#include "WorstSelectionAlgo.hpp"
 #include "UniformCrossover.hpp"
 
 class FaultsManagerInterface;
@@ -51,7 +51,7 @@ private:
     std::optional<EvaluatePopulationStategy> evaluatePopulationStrategy;
 
     using SelectPopulationStrategy = std::variant<BestSelectionAlgo,
-                                                  WorstSelectionAlgo>;
+                                                  RouletteSelectionAlgo>;
     std::optional<SelectPopulationStrategy> selectPopulationStrategy;
 
     using CrossoverPopulationStrategy = std::variant<SinglePointCrossover,

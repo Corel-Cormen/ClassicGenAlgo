@@ -10,7 +10,7 @@ struct UiData;
 enum class SelectionAlgoId : quint8
 {
     BEST_SELECTION = 0,
-    WORST_SELECTION,
+    ROULETTE_SELECTION,
 };
 
 template <typename Base>
@@ -25,11 +25,9 @@ public:
     static constexpr SelectionAlgoId getAlgoName() { return Base::getAlgoName_impl(); }
 
 protected:
-    static void populationScore(GA::Types::GenomePopulation &genomeVec)
+    static void populationElite(GA::Types::GenomePopulation &genomeVec, size_t size)
     {
-        std::sort(genomeVec.begin(), genomeVec.end(),
-                  [](const auto &a, const auto &b) {
-                      return CommonFunc::lessThan(a.value, b.value);
-                  });
+        std::nth_element(genomeVec.begin(), genomeVec.begin() + size, genomeVec.end(),
+            [](const auto& a, const auto& b) { return CommonFunc::lessThan(a.value, b.value); });
     }
 };

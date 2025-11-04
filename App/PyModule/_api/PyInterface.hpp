@@ -5,6 +5,8 @@
 #include <QString>
 #include <QtTypes>
 
+#include "GeneticAlgorithmTypes.hpp"
+
 class PyInterface
 {
 public:
@@ -18,6 +20,8 @@ public:
     virtual bool makeFunction(const QString& funcName, const size_t dimension) = 0;
 
     virtual void discardFunction() = 0;
+
+    virtual void showPlot(const GA::Types::GenomePoint &point) = 0;
 
     [[nodiscard]]
     virtual bool calcPoint(const std::vector<qreal>& point, qreal &val) = 0;

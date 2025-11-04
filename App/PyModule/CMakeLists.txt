@@ -6,17 +6,30 @@ add_library(PyModule STATIC
 
 get_target_property(PY_PROGRAM_ROOT PyModule RUNTIME_OUTPUT_DIRECTORY)
 set(PY_PROGRAM_ROOT "${PY_PROGRAM_ROOT}/python")
-execute_process(
-    COMMAND powershell -ExecutionPolicy Bypass -File
-        "${CMAKE_SOURCE_DIR}/scripts/build_python_install.ps1"
-        -PyPath "${PY_PROGRAM_ROOT}"
-        -PyVersion "${PY_VERSION}"
-        -PyPlatform "${PY_PLATFORM}"
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    RESULT_VARIABLE PY_SETUP_RESULT
-)
-if(NOT PY_SETUP_RESULT EQUAL 0)
-    message(FATAL_ERROR "Setup Python script failed (code: ${result})")
+if(NOT IS_DIRECTORY "${PY_PROGRAM_ROOT}")
+    execute_process(
+        COMMAND powershell -ExecutionPolicy Bypass -File
+            "${CMAKE_SOURCE_DIR}/scripts/build_python_install.ps1"
+            -PyPath "${PY_PROGRAM_ROOT}"
+            -PyVersion "${PY_VERSION}"
+            -PyPlatform "${PY_PLATFORM}"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        RESULT_VARIABLE PY_SETUP_RESULT
+    )
+    if(PY_SETUP_RESULT EQUAL 0)
+        execute_process(
+            COMMAND powershell -ExecutionPolicy Bypass -File
+                "${CMAKE_SOURCE_DIR}/scripts/applyPyPatches.ps1"
+                -PyPath "${PY_PROGRAM_ROOT}"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+            RESULT_VARIABLE PY_SETUP_RESULT
+        )
+        if(NOT PY_SETUP_RESULT EQUAL 0)
+            message(FATAL_ERROR "Setup Python patches failed (code: ${result})")
+        endif()
+    else()
+        message(FATAL_ERROR "Setup Python script failed (code: ${result})")
+    endif()
 endif()
 
 set(PY_INCLUDE_DIR "${PY_PROGRAM_ROOT}/include")
@@ -29,6 +42,8 @@ set(Python3_LIBRARIES "${PY_LIBRARIES}" CACHE FILEPATH "Python library")
 set(ENV{PATH} "${PY_PROGRAM_ROOT};$ENV{PATH}")
 
 target_link_libraries(PyModule
+    PUBLIC
+    AppTypes
     PRIVATE
     Qt6::Core
     ${Python3_LIBRARIES}

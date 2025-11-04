@@ -101,6 +101,8 @@ bool GeneticAlgorithm::calculate()
                 }
             }
             while(false);
+
+            // pyInterface.showPlot(genomeVec[0]);
         }
 
         if (!status)
@@ -182,8 +184,8 @@ void GeneticAlgorithm::createSelectPopulationStrategy(const UiData& uiData)
     case static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::BEST_SELECTION):
         setSelectPopulationStrategy<BestSelectionAlgo>();
         break;
-    case static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::WORST_SELECTION):
-        setSelectPopulationStrategy<WorstSelectionAlgo>();
+    case static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::ROULETTE_SELECTION):
+        setSelectPopulationStrategy<RouletteSelectionAlgo>(random);
         break;
     default:
         qDebug() << "No choose select strategy";

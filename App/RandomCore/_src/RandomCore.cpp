@@ -17,3 +17,28 @@ void RandomCore::init(quint32 seed)
         generator.seed(seed);
     }
 }
+
+size_t RandomCore::randDistIndex(std::vector<qreal> dist) const
+{
+    size_t randIdx = 0U;
+    qreal sumDist = 0.0;
+    for (qreal d : dist)
+    {
+        sumDist += d;
+    }
+
+    const qreal r = randUnit<qreal>();
+
+    qreal cumulative = 0.0;
+    for (size_t i = 0; i < dist.size(); ++i)
+    {
+        cumulative += dist[i] / sumDist;
+        if (r < cumulative)
+        {
+            randIdx = i;
+            break;
+        }
+    }
+
+    return randIdx;
+}

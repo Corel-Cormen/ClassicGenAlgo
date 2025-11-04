@@ -46,6 +46,8 @@ public:
         }
     }
 
+    size_t randDistIndex(std::vector<qreal> dist) const;
+
 private:
     mutable QRandomGenerator generator;
 };

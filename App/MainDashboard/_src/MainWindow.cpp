@@ -230,8 +230,8 @@ void MainWindow::setSelectAlgoNames(QComboBox *comboBox, const UiData &uiData)
         case static_cast<decltype(selectAlgoId)>(SelectionAlgoId::BEST_SELECTION):
             comboBox->addItem("Best selection");
             break;
-        case static_cast<decltype(selectAlgoId)>(SelectionAlgoId::WORST_SELECTION):
-            comboBox->addItem("Worst selection");
+        case static_cast<decltype(selectAlgoId)>(SelectionAlgoId::ROULETTE_SELECTION):
+            comboBox->addItem("Roulette selection");
             break;
         default:
             qDebug() << "Add select algorithm not found ID:" << selectAlgoId;
@@ -331,7 +331,7 @@ void MainWindow::verifyFunctionDimension(UiData &uiData)
     if (parseStatus && (parseNumber > 1U))
     {
         qDebug() << "Input function dimension:" << parseNumber;
-        uiData.functionDimension = static_cast<decltype(uiData.functionDimension)>(parseNumber);
+        uiData.functionDimension = static_cast<decltype(uiData.functionDimension)>(parseNumber-1);
         resetErrorLine(ui->functionDimensionLine);
     }
     else
@@ -469,9 +469,9 @@ bool MainWindow::verifySelectAlgoBox(QComboBox *comboBox, UiData &uiData)
         uiData.selctAlgoIndex =
             static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::BEST_SELECTION);
         break;
-    case static_cast<qint32>(SelectionAlgoId::WORST_SELECTION):
+    case static_cast<qint32>(SelectionAlgoId::ROULETTE_SELECTION):
         uiData.selctAlgoIndex =
-            static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::WORST_SELECTION);
+            static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::ROULETTE_SELECTION);
         break;
     default:
         status = false;

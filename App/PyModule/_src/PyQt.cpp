@@ -9,6 +9,7 @@ namespace PyModuleData {
 PyObject* pyModuleHandler = nullptr;
 PyObject* pyFunctionHandler = nullptr;
 PyObject* pyFunctionCaller = nullptr;
+PyObject* pyFunctionPlotCaller = nullptr;
 
 } // end PyModuleData
 
@@ -33,6 +34,14 @@ bool PyQt::startPython()
         if (pyModuleHandler != nullptr)
         {
             qDebug() << "Python module found";
+
+            pyFunctionPlotCaller = PyObject_GetAttrString(pyModuleHandler,
+                                                          PyShowCharFunctionName.toString().toStdString().c_str());
+            if(!pyFunctionPlotCaller)
+            {
+                PyErr_Print();
+                qDebug() << "Not create callable show function handler";
+            }
         }
         else
         {
@@ -41,7 +50,10 @@ bool PyQt::startPython()
         }
     }
 
-    return ((Py_IsInitialized() == 1) && pyModuleHandler) ? true : false;
+    return ((Py_IsInitialized() == 1) &&
+            pyModuleHandler &&
+            PyCallable_Check(pyFunctionPlotCaller))
+               ? true : false;
 }
 
 bool PyQt::pyInitConfig()
@@ -70,7 +82,9 @@ void PyQt::stopPython()
     if (PyModuleData::pyModuleHandler != nullptr)
     {
         qDebug() << "Deinit Python module";
+        Py_XDECREF(PyModuleData::pyFunctionPlotCaller);
         Py_DECREF(PyModuleData::pyModuleHandler);
+        PyModuleData::pyFunctionPlotCaller = nullptr;
         PyModuleData::pyModuleHandler = nullptr;
     }
     Py_Finalize();
@@ -80,7 +94,7 @@ bool PyQt::makeFunction(const QString& funcName, const size_t dimension)
 {
     using namespace PyModuleData;
 
-    if (pyModuleHandler && (dimension > 1U))
+    if (pyModuleHandler && (dimension >= 1U))
     {
         pyFunctionHandler = PyObject_CallMethod(pyModuleHandler,
                                                 funcName.toStdString().c_str(),
@@ -137,7 +151,7 @@ bool PyQt::calcPoint(const std::vector<qreal>& point, qreal &val)
     if(pyFunctionHandler && pyFunctionCaller)
     {
         PyObject* pyArgsList = PyList_New(point.size());
-        for (size_t i = 0; i < point.size(); ++i)
+        for (size_t i = 0U; i < point.size(); ++i)
         {
             PyList_SetItem(pyArgsList, i, PyFloat_FromDouble(point[i]));
         }
@@ -173,4 +187,32 @@ bool PyQt::calcPoint(const std::vector<qreal>& point, qreal &val)
     }
 
     return status;
+}
+
+void PyQt::showPlot(const GA::Types::GenomePoint &point)
+{
+    using namespace PyModuleData;
+
+    if(pyFunctionHandler && pyFunctionPlotCaller)
+    {
+        PyObject* pyPoint = PyList_New(point.point.size());
+        for (size_t i = 0U; i < point.point.size(); ++i)
+        {
+            PyList_SetItem(pyPoint, i, PyFloat_FromDouble(point.point[i].val()));
+        }
+
+        PyObject* PyPointsList = PyList_New(1);
+        PyList_SetItem(PyPointsList, 0, pyPoint);
+
+        constexpr size_t functionArgQuantitiy = 2U;
+        PyObject* pyArgsTuple = PyTuple_Pack(functionArgQuantitiy,
+                                             PyModuleData::pyFunctionHandler,
+                                             PyPointsList);
+
+        PyObject_CallObject(pyFunctionPlotCaller, pyArgsTuple);
+
+        Py_DECREF(pyPoint);
+        Py_DECREF(PyPointsList);
+        Py_DECREF(pyArgsTuple);
+    }
 }

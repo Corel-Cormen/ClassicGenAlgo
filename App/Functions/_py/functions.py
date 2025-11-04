@@ -27,3 +27,7 @@ def make_schwefel(dim) -> bf.BenchmarkFunction:
 
 def call_func(fobj: bf.BenchmarkFunction, args: List[float]) -> float:
     return fobj(args)
+
+def show_char(fobj: bf.BenchmarkFunction, args: List[float] = None) -> None:
+    if fobj.n_dimensions() < 3:
+        fobj.show(showPoints=args, savePath="plot.png", show=True)

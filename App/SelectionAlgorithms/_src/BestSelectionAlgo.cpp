@@ -4,15 +4,17 @@
 bool BestSelectionAlgo::select_impl(GA::Types::GenomePopulation &genomeVec,
                                     const UiData &uiData)
 {
-    bool status = false;
-
-    constexpr size_t minimumPopulation = 2U;
-    if (uiData.selectAlgoPopulationQuantity >= minimumPopulation)
+    size_t nthSize = 0;
+    if(uiData.eliteStrategyEnable)
     {
-        populationScore(genomeVec);
-        genomeVec.erase(genomeVec.begin() + uiData.selectAlgoPopulationQuantity, genomeVec.end());
-        status = true;
+        populationElite(genomeVec, uiData.eliteStrategyQuantity);
+        nthSize = uiData.eliteStrategyQuantity;
     }
 
-    return status;
+    std::nth_element(genomeVec.begin() + nthSize, genomeVec.begin() + nthSize, genomeVec.end(),
+                     [](const auto& a, const auto& b) { return CommonFunc::lessThan(a.value, b.value); });
+
+    genomeVec.erase(genomeVec.begin() + uiData.selectAlgoPopulationQuantity, genomeVec.end());
+
+    return true;
 }
