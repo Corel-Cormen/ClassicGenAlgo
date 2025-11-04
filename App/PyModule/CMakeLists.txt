@@ -26,6 +26,7 @@ file(GLOB PY_LIBRARIES "${PY_LIB_DIR}/*.lib" "${PY_PROGRAM_ROOT}/*.dll")
 
 set(Python3_INCLUDE_DIRS "${PY_INCLUDE_DIR}" CACHE PATH "Python include dir")
 set(Python3_LIBRARIES "${PY_LIBRARIES}" CACHE FILEPATH "Python library")
+set(ENV{PATH} "${PY_PROGRAM_ROOT};$ENV{PATH}")
 
 target_link_libraries(PyModule
     PRIVATE
