@@ -23,6 +23,7 @@ target_link_libraries(MainDashboard
     UiDataHolder
     SelectionAlgorithms
     CrossoverAlgorithms
+    MutationAlgorithms
 )
 
 target_include_directories(MainDashboard

@@ -41,6 +41,7 @@ private:
 
     static void setSelectAlgoNames(QComboBox *comboBox, const UiData &uiData);
     static void setCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData);
+    static void setMutationAlgoNames(QComboBox *comboBox, const UiData &uiData);
 
     static void setErrorLine(QLineEdit *lineEdit);
     static void resetErrorLine(QLineEdit *lineEdit);
@@ -60,6 +61,8 @@ private:
     void verifyTournamentSize(UiData &uiData);
     void verifyCrossoverAlgo(UiData &uiData);
     static bool verifyCrossoverAlgoBox(QComboBox *comboBox, UiData &uiData);
+    void verifyMutationAlgo(UiData &uiData);
+    static bool verifyMutationAlgoBox(QComboBox *comboBox, UiData &uiData);
     void verifyEliteStrategy(UiData &uiData);
 
     static constexpr QLatin1StringView decimalExpression{"^[0-9+\\-]+$"};

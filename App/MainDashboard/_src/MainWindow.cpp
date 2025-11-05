@@ -11,6 +11,7 @@
 #include "FaultsManagerInterface.hpp"
 #include "FunctionObserver.hpp"
 #include "MainWindow.hpp"
+#include "MutationAlgoBase.hpp"
 #include "SelectionAlgoBase.hpp"
 #include "UiDataHolderInterface.hpp"
 
@@ -144,7 +145,6 @@ void MainWindow::load()
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
     selectStrategyChangeValue();
 
-
     setCrossoverAlgoNames(ui->crossoverAlgoComboBox, uiData);
     connect(ui->crossoverAlgoComboBox, &QComboBox::currentIndexChanged, this,
             &MainWindow::crossoverStrategyChangeValue);
@@ -153,6 +153,11 @@ void MainWindow::load()
     ui->crossingPropabilityLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{floatExpression}, this));
     crossoverStrategyChangeValue();
+
+    setMutationAlgoNames(ui->mutationAlgoComboBox, uiData);
+    ui->mutationProbabilityLine->setText(QString::number(uiData.mutationPropablity));
+    ui->mutationProbabilityLine->setValidator(
+        new QRegularExpressionValidator(QRegularExpression{floatExpression}, this));
 
     ui->eliteStrategyCheckBox->setChecked(uiData.eliteStrategyEnable);
     originalPalette = ui->elitePopulationLine->palette();
@@ -278,6 +283,32 @@ void MainWindow::setCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData
     comboBox->setCurrentIndex(uiData.crossoverAlgoIndex);
 }
 
+void MainWindow::setMutationAlgoNames(QComboBox *comboBox, const UiData &uiData)
+{
+    for(const auto mutationAlgoId : uiData.mutationAlgoNames)
+    {
+        switch (mutationAlgoId)
+        {
+        case static_cast<decltype(mutationAlgoId)>(MutationAlgoId::EDGE_MUTATION):
+            comboBox->addItem("Edge mutation");
+            break;
+        case static_cast<decltype(mutationAlgoId)>(MutationAlgoId::ONE_POINT_MUTATION):
+            comboBox->addItem("One point mutation");
+            break;
+        case static_cast<decltype(mutationAlgoId)>(MutationAlgoId::TWO_POINT_MUTATION):
+            comboBox->addItem("Two points mutation");
+            break;
+        case static_cast<decltype(mutationAlgoId)>(MutationAlgoId::INWERSE_MUTATION):
+            comboBox->addItem("Inverse mutation");
+            break;
+        default:
+            qDebug() << "Add mutation algorithm not found ID:" << mutationAlgoId;
+            break;
+        }
+    }
+    comboBox->setCurrentIndex(uiData.mutationAlgoIndex);
+}
+
 void MainWindow::setErrorLine(QLineEdit *lineEdit)
 {
     lineEdit->setStyleSheet("QLineEdit { border: 2px solid red; }");
@@ -302,6 +333,7 @@ void MainWindow::onStartCalcButton()
     verifySelectAlgo(uiData);
     verifyTournamentSize(uiData);
     verifyCrossoverAlgo(uiData);
+    verifyMutationAlgo(uiData);
     verifyEliteStrategy(uiData);
 
     emit triggerCalculate();
@@ -575,6 +607,62 @@ bool MainWindow::verifyCrossoverAlgoBox(QComboBox *comboBox, UiData &uiData)
     case static_cast<qint32>(CrossoverAlgoId::DISCRETE):
         uiData.crossoverAlgoIndex =
             static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::DISCRETE);
+        break;
+    default:
+        result = false;
+        break;
+    }
+    return result;
+}
+
+void MainWindow::verifyMutationAlgo(UiData &uiData)
+{
+    if(!verifyMutationAlgoBox(ui->mutationAlgoComboBox, uiData))
+    {
+        qDebug() << "Chose not supported mutation algorithm";
+        faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+    }
+
+    bool parseStatus = false;
+    const QString probabilityStr = ui->mutationProbabilityLine->text();
+    qreal probability = probabilityStr.toDouble(&parseStatus);
+
+    if(parseStatus && CommonFunc::moreEqThan(probability, 0.0) &&
+        CommonFunc::lessEqThan(probability, 1.0))
+    {
+        qDebug() << "Mutation probability:" << probability;
+        uiData.mutationPropablity = probability;
+        resetErrorLine(ui->mutationProbabilityLine);
+    }
+    else
+    {
+        qDebug() << "Parse error for input mutation probability:" << probabilityStr;
+        setErrorLine(ui->mutationProbabilityLine);
+        faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+    }
+}
+
+bool MainWindow::verifyMutationAlgoBox(QComboBox *comboBox, UiData &uiData)
+{
+    bool result = true;
+    qDebug() << "Choose mutation algorithm" << comboBox->currentText();
+    switch (comboBox->currentIndex())
+    {
+    case static_cast<qint32>(MutationAlgoId::EDGE_MUTATION):
+        uiData.mutationAlgoIndex =
+            static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::EDGE_MUTATION);
+        break;
+    case static_cast<qint32>(MutationAlgoId::ONE_POINT_MUTATION):
+        uiData.mutationAlgoIndex =
+            static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::ONE_POINT_MUTATION);
+        break;
+    case static_cast<qint32>(MutationAlgoId::TWO_POINT_MUTATION):
+        uiData.mutationAlgoIndex =
+            static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::TWO_POINT_MUTATION);
+        break;
+    case static_cast<qint32>(MutationAlgoId::INWERSE_MUTATION):
+        uiData.mutationAlgoIndex =
+            static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::INWERSE_MUTATION);
         break;
     default:
         result = false;

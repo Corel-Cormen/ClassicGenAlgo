@@ -26,6 +26,7 @@ bool GeneticAlgorithm::setupInitial()
     auto& uiData = uiDataHolder.getRef();
     uiData.selectAlgoNames = getAlgoName<SelectPopulationStrategy>();
     uiData.crossoverAlgoNames = getAlgoName<CrossoverPopulationStrategy>();
+    uiData.mutationAlgoNames = getAlgoName<MutationPopulationStrategy>();
 
     functionObserver.subscribe(std::make_unique<HypersphereFunction>());
 
@@ -56,6 +57,7 @@ bool GeneticAlgorithm::calculate()
     setEvaluatePopulationStrategy<PyFunctionEvaluateAlgo>(pyInterface);
     createSelectPopulationStrategy(uiData);
     createCrossoverPopulationStrategy(uiData);
+    createMutationPopulationStrategy(uiData);
 
     functionObserver.choseFunctionId(uiData.selectFunctionId);
 
@@ -184,6 +186,20 @@ void GeneticAlgorithm::setCrossoverPopulationStrategy(Args&&... args)
     }
 }
 
+template<typename Strategy, typename... Args>
+void GeneticAlgorithm::setMutationPopulationStrategy(Args&&... args)
+{
+    Strategy *strategyPtr = mutationPopulationStrategy ?
+                                std::get_if<Strategy>(&*mutationPopulationStrategy) :
+                                nullptr;
+    if (!strategyPtr)
+    {
+        qDebug() << "Use new strategy for mutation population:" << typeid(Strategy).name();
+        mutationPopulationStrategy.emplace(std::in_place_type<Strategy>,
+                                           std::forward<Args>(args)...);
+    }
+}
+
 void GeneticAlgorithm::createSelectPopulationStrategy(const UiData& uiData)
 {
     switch (uiData.selctAlgoIndex)
@@ -219,7 +235,27 @@ void GeneticAlgorithm::createCrossoverPopulationStrategy(const UiData& uiData)
         setCrossoverPopulationStrategy<DiscreteCrossover>(random);
         break;
     default:
-        qDebug() << "No choose select strategy";
+        qDebug() << "No choose crossover strategy";
+    }
+}
+
+void GeneticAlgorithm::createMutationPopulationStrategy(const UiData& uiData)
+{
+    switch (uiData.mutationAlgoIndex) {
+    case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::EDGE_MUTATION):
+        setMutationPopulationStrategy<EdgeMutationAlgo>(random);
+        break;
+    case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::ONE_POINT_MUTATION):
+        setMutationPopulationStrategy<OnePointMutationAlgo>(random);
+        break;
+    case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::TWO_POINT_MUTATION):
+        setMutationPopulationStrategy<TwoPointMutationAlgo>(random);
+        break;
+    case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::INWERSE_MUTATION):
+        setMutationPopulationStrategy<InwerseMutationAlgo>(random);
+        break;
+    default:
+        qDebug() << "No choose mutation strategy";
     }
 }
 
@@ -267,6 +303,18 @@ bool GeneticAlgorithm::crossoverPopulation(const UiData& uiData)
         std::visit([&](auto& strategy) {
             status = strategy.crossover(this->genomeVec, uiData);
         }, *crossoverPopulationStrategy);
+    }
+    return status;
+}
+
+bool GeneticAlgorithm::mutationPopulation(const UiData& uiData)
+{
+    bool status = false;
+    if (mutationPopulationStrategy)
+    {
+        std::visit([&](auto& strategy) {
+            status = strategy.mutation(this->genomeVec, uiData);
+        }, *mutationPopulationStrategy);
     }
     return status;
 }

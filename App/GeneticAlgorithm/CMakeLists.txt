@@ -11,6 +11,7 @@ target_link_libraries(GeneticAlgorithm
     EvaluateAlgorithms
     SelectionAlgorithms
     CrossoverAlgorithms
+    MutationAlgorithms
     PRIVATE
     Qt6::Core
     FaultsManager

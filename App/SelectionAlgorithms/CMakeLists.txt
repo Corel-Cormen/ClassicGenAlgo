@@ -13,7 +13,6 @@ target_link_libraries(SelectionAlgorithms
     AppTypes
     CommonFunctions
     PRIVATE
-    AppTypes
     UiDataHolder
     RandomCore
 )

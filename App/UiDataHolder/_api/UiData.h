@@ -23,6 +23,9 @@ struct UiData
     std::vector<quint8> crossoverAlgoNames;
     quint8 crossoverAlgoIndex;
     qreal crossingPropablity;
+    std::vector<quint8> mutationAlgoNames;
+    quint8 mutationAlgoIndex;
+    qreal mutationPropablity;
     bool eliteStrategyEnable;
     quint16 eliteStrategyQuantity;
 };

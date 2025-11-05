@@ -15,6 +15,8 @@ void UiDataHolder::resetDefault()
     uiData.tournamentPopulationQuantity = 3;
     uiData.crossoverAlgoIndex = 0U;
     uiData.crossingPropablity = 0.5;
+    uiData.mutationAlgoIndex = 0;
+    uiData.mutationPropablity = 0.3;
     uiData.eliteStrategyEnable = false;
     uiData.eliteStrategyQuantity = 2;
 }

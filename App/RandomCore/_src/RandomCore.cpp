@@ -22,7 +22,7 @@ size_t RandomCore::randDistIndex(std::vector<qreal> dist) const
 {
     size_t randIdx = 0U;
     qreal sumDist = 0.0;
-    for (qreal d : dist)
+    for (const qreal d : dist)
     {
         sumDist += d;
     }
