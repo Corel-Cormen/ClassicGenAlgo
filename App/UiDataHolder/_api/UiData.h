@@ -19,6 +19,7 @@ struct UiData
     std::vector<quint8> selectAlgoNames;
     quint8 selctAlgoIndex;
     quint16 selectAlgoPopulationQuantity;
+    quint8 tournamentPopulationQuantity;
     std::vector<quint8> crossoverAlgoNames;
     quint8 crossoverAlgoIndex;
     qreal crossingPropablity;

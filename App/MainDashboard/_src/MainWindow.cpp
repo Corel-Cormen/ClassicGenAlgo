@@ -136,6 +136,14 @@ void MainWindow::load()
     ui->selectAlgoPopulationPercentLine->setText(QString::number(selectAlgoPopulationPercent));
     ui->selectAlgoPopulationPercentLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
+    connect(ui->selectAlgoNameComboBox, &QComboBox::currentIndexChanged, this,
+            &MainWindow::selectStrategyChangeValue);
+
+    ui->tournamentSizeLine->setText(QString::number(uiData.tournamentPopulationQuantity));
+    ui->tournamentSizeLine->setValidator(
+        new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
+    selectStrategyChangeValue();
+
 
     setCrossoverAlgoNames(ui->crossoverAlgoComboBox, uiData);
     connect(ui->crossoverAlgoComboBox, &QComboBox::currentIndexChanged, this,
@@ -233,6 +241,9 @@ void MainWindow::setSelectAlgoNames(QComboBox *comboBox, const UiData &uiData)
         case static_cast<decltype(selectAlgoId)>(SelectionAlgoId::ROULETTE_SELECTION):
             comboBox->addItem("Roulette selection");
             break;
+        case static_cast<decltype(selectAlgoId)>(SelectionAlgoId::TOURNAMENT_SELECTION):
+            comboBox->addItem("Tournament selection");
+            break;
         default:
             qDebug() << "Add select algorithm not found ID:" << selectAlgoId;
             break;
@@ -289,6 +300,7 @@ void MainWindow::onStartCalcButton()
     verifyPopulation(uiData);
     verifyGenerations(uiData);
     verifySelectAlgo(uiData);
+    verifyTournamentSize(uiData);
     verifyCrossoverAlgo(uiData);
     verifyEliteStrategy(uiData);
 
@@ -473,11 +485,38 @@ bool MainWindow::verifySelectAlgoBox(QComboBox *comboBox, UiData &uiData)
         uiData.selctAlgoIndex =
             static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::ROULETTE_SELECTION);
         break;
+    case static_cast<qint32>(SelectionAlgoId::TOURNAMENT_SELECTION):
+        uiData.selctAlgoIndex =
+            static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::TOURNAMENT_SELECTION);
+        break;
     default:
         status = false;
         break;
     }
     return status;
+}
+
+void MainWindow::verifyTournamentSize(UiData &uiData)
+{
+    if (uiData.selctAlgoIndex ==
+        static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::TOURNAMENT_SELECTION))
+    {
+        bool parseStatus = false;
+        const QString sizeStr = ui->tournamentSizeLine->text();
+        qint128 sizeNumber = validateTextNumber<quint8>(sizeStr, parseStatus);
+        if (parseStatus && (sizeNumber > 1U) && (sizeNumber <= uiData.populationQuantity))
+        {
+            qDebug() << "Select tournament population size:" << sizeNumber;
+            uiData.tournamentPopulationQuantity = sizeNumber;
+            resetErrorLine(ui->tournamentSizeLine);
+        }
+        else
+        {
+            qDebug() << "Parse error for input tournament population size:" << sizeStr;
+            setErrorLine(ui->tournamentSizeLine);
+            faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+        }
+    }
 }
 
 void MainWindow::verifyCrossoverAlgo(UiData &uiData)
@@ -599,6 +638,22 @@ void MainWindow::eliteStrategyChangeValue()
     else
     {
         lockLineEdit(ui->elitePopulationLine);
+    }
+}
+
+void MainWindow::selectStrategyChangeValue()
+{
+    if (ui->selectAlgoNameComboBox->currentIndex() ==
+        static_cast<qint32>(SelectionAlgoId::TOURNAMENT_SELECTION))
+    {
+        const UiData& uiData = uiDataHolder.getRef();
+        unlockLineEdit(ui->tournamentSizeLine,
+                       originalPalette,
+                       uiData.tournamentPopulationQuantity);
+    }
+    else
+    {
+        lockLineEdit(ui->tournamentSizeLine);
     }
 }
 

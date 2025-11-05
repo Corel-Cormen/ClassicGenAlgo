@@ -57,6 +57,7 @@ private:
     void verifyGenerations(UiData &uiData);
     void verifySelectAlgo(UiData &uiData);
     static bool verifySelectAlgoBox(QComboBox *comboBox, UiData &uiData);
+    void verifyTournamentSize(UiData &uiData);
     void verifyCrossoverAlgo(UiData &uiData);
     static bool verifyCrossoverAlgoBox(QComboBox *comboBox, UiData &uiData);
     void verifyEliteStrategy(UiData &uiData);
@@ -66,6 +67,7 @@ private:
 
 private slots:
     void onStartCalcButton();
-    void eliteStrategyChangeValue();
+    void selectStrategyChangeValue();
     void crossoverStrategyChangeValue();
+    void eliteStrategyChangeValue();
 };

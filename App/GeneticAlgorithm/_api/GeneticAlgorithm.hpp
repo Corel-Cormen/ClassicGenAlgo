@@ -12,6 +12,7 @@
 #include "RandomPopulationFabric.hpp"
 #include "RouletteSelectionAlgo.hpp"
 #include "SinglePointCrossover.hpp"
+#include "TournamentSelectionAlgo.hpp"
 #include "TwoPointCrossover.hpp"
 #include "UniformCrossover.hpp"
 
@@ -51,7 +52,8 @@ private:
     std::optional<EvaluatePopulationStategy> evaluatePopulationStrategy;
 
     using SelectPopulationStrategy = std::variant<BestSelectionAlgo,
-                                                  RouletteSelectionAlgo>;
+                                                  RouletteSelectionAlgo,
+                                                  TournamentSelectionAlgo>;
     std::optional<SelectPopulationStrategy> selectPopulationStrategy;
 
     using CrossoverPopulationStrategy = std::variant<SinglePointCrossover,

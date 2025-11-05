@@ -2,7 +2,6 @@
 
 #include "SelectionAlgoBase.hpp"
 
-class RandomCore;
 struct UiData;
 
 class BestSelectionAlgo : public SelectionAlgoBase<BestSelectionAlgo>

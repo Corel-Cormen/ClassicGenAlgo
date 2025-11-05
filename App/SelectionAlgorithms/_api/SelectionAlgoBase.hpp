@@ -11,6 +11,7 @@ enum class SelectionAlgoId : quint8
 {
     BEST_SELECTION = 0,
     ROULETTE_SELECTION,
+    TOURNAMENT_SELECTION,
 };
 
 template <typename Base>

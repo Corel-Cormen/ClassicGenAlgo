@@ -73,6 +73,13 @@ bool GeneticAlgorithm::calculate()
             do
             {
                 status = evaluatePopulation();
+
+                for (const auto& genome : genomeVec)
+                {
+                    qDebug() << genome.value;
+                }
+                qDebug() << "----------------------------";
+
                 if (!status)
                 {
                     qDebug() << "Evaluate population error";
@@ -186,6 +193,9 @@ void GeneticAlgorithm::createSelectPopulationStrategy(const UiData& uiData)
         break;
     case static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::ROULETTE_SELECTION):
         setSelectPopulationStrategy<RouletteSelectionAlgo>(random);
+        break;
+    case static_cast<decltype(uiData.selctAlgoIndex)>(SelectionAlgoId::TOURNAMENT_SELECTION):
+        setSelectPopulationStrategy<TournamentSelectionAlgo>();
         break;
     default:
         qDebug() << "No choose select strategy";
