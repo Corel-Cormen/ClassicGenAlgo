@@ -104,6 +104,13 @@ bool GeneticAlgorithm::calculate()
                 }
                 qDebug() << "cross len = " << genomeVec.size();
 
+                status = mutationPopulation(uiData);
+                if (!status)
+                {
+                    qDebug() << "Mutation population error";
+                    break;
+                }
+
                 for (const auto& genome : genomeVec)
                 {
                     qDebug() << genome.value;
