@@ -1,22 +1,18 @@
 #pragma once
 
-#include "MutationAlgoBase.hpp"
+#include "MutationDecider.hpp"
 
 class RandomCore;
-struct UiData;
 
-class InwerseMutationAlgo : public MutationAlgoBase<InwerseMutationAlgo>
+class InwerseMutationAlgo : public MutationDecider<InwerseMutationAlgo>
 {
 public:
-    InwerseMutationAlgo(const RandomCore &randomRef);
+    explicit InwerseMutationAlgo(RandomCore &randomRef);
 
-    bool mutation_impl(GA::Types::GenomePopulation &genomeVec,
-                       const UiData &uiData);
+    void mutation_impl(Genome &genome);
 
     static constexpr MutationAlgoId getAlgoName_impl() { return algoId; }
 
 private:
     static constexpr MutationAlgoId algoId{MutationAlgoId::INWERSE_MUTATION};
-
-    const RandomCore &random;
 };

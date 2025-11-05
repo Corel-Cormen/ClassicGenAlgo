@@ -1,11 +1,12 @@
 #include "TwoPointMutationAlgo.hpp"
 
-TwoPointMutationAlgo::TwoPointMutationAlgo(const RandomCore &randomRef) :
-    random{randomRef}
+TwoPointMutationAlgo::TwoPointMutationAlgo(RandomCore &randomRef) :
+    MutationDecider<TwoPointMutationAlgo>(randomRef)
 {}
 
-bool TwoPointMutationAlgo::mutation_impl(GA::Types::GenomePopulation &genomeVec,
-                                         const UiData &uiData)
+void TwoPointMutationAlgo::mutation_impl(Genome &genome)
 {
-    return true;
+    const auto mutationIdx = random.randTwo<size_t>(0, genome.size());
+    genome[mutationIdx->first] = !genome[mutationIdx->first];
+    genome[mutationIdx->second] = !genome[mutationIdx->second];
 }

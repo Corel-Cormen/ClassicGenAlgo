@@ -2,6 +2,7 @@
 #include "UiData.h"
 
 RandomPopulationFabric::RandomPopulationFabric(const RandomCore &randomRef) :
+    PopulationFabricBase(),
     random{randomRef}
 {}
 

@@ -1,22 +1,18 @@
 #pragma once
 
-#include "MutationAlgoBase.hpp"
+#include "MutationDecider.hpp"
 
 class RandomCore;
-struct UiData;
 
-class EdgeMutationAlgo : public MutationAlgoBase<EdgeMutationAlgo>
+class EdgeMutationAlgo : public MutationDecider<EdgeMutationAlgo>
 {
 public:
-    EdgeMutationAlgo(const RandomCore &randomRef);
+    explicit EdgeMutationAlgo(RandomCore &randomRef);
 
-    bool mutation_impl(GA::Types::GenomePopulation &genomeVec,
-                       const UiData &uiData);
+    void mutation_impl(Genome &genome);
 
     static constexpr MutationAlgoId getAlgoName_impl() { return algoId; }
 
 private:
     static constexpr MutationAlgoId algoId{MutationAlgoId::EDGE_MUTATION};
-
-    const RandomCore &random;
 };

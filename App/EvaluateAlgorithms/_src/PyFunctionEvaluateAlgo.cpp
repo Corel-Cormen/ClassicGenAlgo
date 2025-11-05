@@ -2,6 +2,7 @@
 #include "PyInterface.hpp"
 
 PyFunctionEvaluateAlgo::PyFunctionEvaluateAlgo(PyInterface &pyInterfaceRef) :
+    EvaluateAlgoBase(),
     pyInterface{pyInterfaceRef}
 {}
 

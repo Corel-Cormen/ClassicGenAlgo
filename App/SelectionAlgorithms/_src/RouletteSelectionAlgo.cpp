@@ -3,6 +3,7 @@
 #include "UiData.h"
 
 RouletteSelectionAlgo::RouletteSelectionAlgo(RandomCore &randomRef) :
+    SelectionAlgoBase(),
     random{randomRef}
 {}
 

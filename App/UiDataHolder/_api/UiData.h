@@ -11,14 +11,14 @@ struct UiData
     quint8 functionDimension;
     quint8 precission;
     quint8 selectFunctionId;
-    quint16 populationQuantity;
+    quint32 populationQuantity;
     quint16 generations;
     quint32 randomSeed;
     qreal minSearchRange;
     qreal maxSearchRange;
     std::vector<quint8> selectAlgoNames;
     quint8 selctAlgoIndex;
-    quint16 selectAlgoPopulationQuantity;
+    quint32 selectAlgoPopulationQuantity;
     quint8 tournamentPopulationQuantity;
     std::vector<quint8> crossoverAlgoNames;
     quint8 crossoverAlgoIndex;
@@ -27,7 +27,7 @@ struct UiData
     quint8 mutationAlgoIndex;
     qreal mutationPropablity;
     bool eliteStrategyEnable;
-    quint16 eliteStrategyQuantity;
+    quint32 eliteStrategyQuantity;
 };
 
 #endif // UI_DATA_H

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <limits>
+#include <optional>
 #include <type_traits>
 
 #include <QRandomGenerator>
+#include <QPair>
 
 class RandomCore
 {
@@ -39,6 +41,44 @@ public:
         if constexpr (std::is_integral_v<T>)
         {
             return static_cast<T>(generator.bounded(num1, num2));
+        }
+        else
+        {
+            static_assert(std::is_arithmetic_v<T>, "Rand core required integral type");
+        }
+    }
+
+    template<typename T>
+    std::optional<QPair<T, T>> randTwo(const T num1, const T num2) const
+    {
+        if constexpr (std::is_integral_v<T>)
+        {
+            std::optional<QPair<T, T>> result;
+            if (num2 > num1)
+            {
+                const size_t size = num2 - num1;
+                if (size >= 2U)
+                {
+                    std::vector<T> numbers;
+                    numbers.reserve(size);
+                    for (auto i = num1; i <= num2; ++i)
+                    {
+                        numbers.push_back(i);
+                    }
+
+                    std::shuffle(numbers.begin(), numbers.end(), generator);
+
+                    if (numbers[0] < numbers[1])
+                    {
+                        result = std::make_pair(numbers[0], numbers[1]);
+                    }
+                    else
+                    {
+                        result = std::make_pair(numbers[1], numbers[0]);
+                    }
+                }
+            }
+            return result;
         }
         else
         {

@@ -1,5 +1,6 @@
 add_library(MutationAlgorithms STATIC
     _api/MutationAlgoBase.hpp
+    _api/MutationDecider.hpp
     _api/EdgeMutationAlgo.hpp
     _api/OnePointMutationAlgo.hpp
     _api/TwoPointMutationAlgo.hpp
@@ -14,6 +15,7 @@ target_link_libraries(MutationAlgorithms
     PUBLIC
     AppTypes
     PRIVATE
+    CommonFunctions
     UiDataHolder
     RandomCore
 )

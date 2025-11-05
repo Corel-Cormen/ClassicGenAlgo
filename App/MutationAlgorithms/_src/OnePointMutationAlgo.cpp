@@ -1,11 +1,11 @@
 #include "OnePointMutationAlgo.hpp"
 
-OnePointMutationAlgo::OnePointMutationAlgo(const RandomCore &randomRef) :
-    random{randomRef}
+OnePointMutationAlgo::OnePointMutationAlgo(RandomCore &randomRef) :
+    MutationDecider<OnePointMutationAlgo>(randomRef)
 {}
 
-bool OnePointMutationAlgo::mutation_impl(GA::Types::GenomePopulation &genomeVec,
-                                         const UiData &uiData)
+void OnePointMutationAlgo::mutation_impl(Genome &genome)
 {
-    return true;
+    size_t mutationIdx = random.randNumber<size_t>(0, genome.size());
+    genome[mutationIdx] = ~genome[mutationIdx];
 }

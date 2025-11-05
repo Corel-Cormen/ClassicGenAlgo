@@ -1,11 +1,18 @@
 #include "EdgeMutationAlgo.hpp"
 
-EdgeMutationAlgo::EdgeMutationAlgo(const RandomCore &randomRef) :
-    random{randomRef}
+EdgeMutationAlgo::EdgeMutationAlgo(RandomCore &randomRef) :
+    MutationDecider<EdgeMutationAlgo>(randomRef)
 {}
 
-bool EdgeMutationAlgo::mutation_impl(GA::Types::GenomePopulation &genomeVec,
-                                     const UiData &uiData)
+void EdgeMutationAlgo::mutation_impl(Genome &genome)
 {
-    return true;
+    const quint8 mutationEdge = random.randUnit<quint8>();
+    if (mutationEdge == 0U)
+    {
+        genome[0].flip();
+    }
+    else
+    {
+        genome[genome.size()-1].flip();
+    }
 }

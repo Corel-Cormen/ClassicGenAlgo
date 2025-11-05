@@ -71,17 +71,9 @@ bool GeneticAlgorithm::calculate()
         {
             qDebug() << "Create population success";
 
-            // for (quint16 generation = 0U; generation < uiData.generations; ++generation)
-            do
+            for (quint16 generation = 0U; generation < uiData.generations; ++generation)
             {
                 status = evaluatePopulation();
-
-                for (const auto& genome : genomeVec)
-                {
-                    qDebug() << genome.value;
-                }
-                qDebug() << "----------------------------";
-
                 if (!status)
                 {
                     qDebug() << "Evaluate population error";
@@ -94,7 +86,6 @@ bool GeneticAlgorithm::calculate()
                     qDebug() << "Select population error";
                     break;
                 }
-                qDebug() << "select len = " << genomeVec.size();
 
                 status = crossoverPopulation(uiData);
                 if (!status)
@@ -102,7 +93,6 @@ bool GeneticAlgorithm::calculate()
                     qDebug() << "Crossover population error";
                     break;
                 }
-                qDebug() << "cross len = " << genomeVec.size();
 
                 status = mutationPopulation(uiData);
                 if (!status)
@@ -110,15 +100,14 @@ bool GeneticAlgorithm::calculate()
                     qDebug() << "Mutation population error";
                     break;
                 }
-
-                for (const auto& genome : genomeVec)
-                {
-                    qDebug() << genome.value;
-                }
             }
-            while(false);
 
-            // pyInterface.showPlot(genomeVec[0]);
+            for (int i = 0; i < 10; ++i)
+            {
+                qDebug() << genomeVec[i].value;
+            }
+
+            pyInterface.showPlot(genomeVec[0]);
         }
 
         if (!status)
