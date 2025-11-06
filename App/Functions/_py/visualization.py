@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import List, Union
 
-def show_char(fobj: Union[bf.BenchmarkFunction, object], args: List[float] = None) -> None:
+def show_char(fobj: Union[bf.BenchmarkFunction, object], args: List[float] = None, dims: tuple = (0,1)) -> None:
     if isinstance(fobj, bf.BenchmarkFunction):
         if args is not None:
             fobj.show(showPoints=args)
@@ -11,9 +11,11 @@ def show_char(fobj: Union[bf.BenchmarkFunction, object], args: List[float] = Non
             fobj.show()
 
     elif hasattr(fobj, 'evaluate') and hasattr(fobj, 'lb') and hasattr(fobj, 'ub'):
-        dim1, dim2 = 0, 1
-        n_points = 50
+        dim1, dim2 = dims[0], dims[1]
+        if dim1 < 0 or dim2 < 0 or dim1 >= fobj.ndim or dim2 >= fobj.ndim:
+            raise ValueError(f"dims {dims} out of range for function with ndim={fobj.ndim}")
 
+        n_points = 50
         x = np.linspace(fobj.lb[dim1], fobj.ub[dim1], n_points)
         y = np.linspace(fobj.lb[dim2], fobj.ub[dim2], n_points)
         X, Y = np.meshgrid(x, y)
@@ -41,6 +43,15 @@ def show_char(fobj: Union[bf.BenchmarkFunction, object], args: List[float] = Non
         cbar = fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10)
         cbar.set_label('Function Value', fontsize=12)
 
+        if hasattr(fobj, 'highlight_point'):
+            hp = np.array(fobj.highlight_point, dtype=float)
+            hx = float(hp[dim1])
+            hy = float(hp[dim2])
+            hz = float(fobj.evaluate(hp))
+            ax.scatter([hx], [hy], [hz], color='red', s=80, edgecolors='k', zorder=10)
+            ax.text(hx, hy, hz, '  highlight', color='red', fontsize=9)
+
         plt.show()
+
     else:
         print(f"Function {type(fobj).__name__} does not support visualization")
