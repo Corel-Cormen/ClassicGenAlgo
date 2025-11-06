@@ -34,8 +34,8 @@ if (-not (Test-Path -Path $PyPath)) {
     & $PyExe -m pip install numpy --only-binary=:all:
     & $PyExe -m pip install --no-deps --no-cache-dir `
         --disable-pip-version-check --no-warn-script-location `
-        scipy benchmark_functions matplotlib Pillow pyparsing opfunu setuptools`
-        cycler kiwisolver packaging python-dateutil
+        scipy benchmark_functions matplotlib Pillow pyparsing opfunu setuptools `
+        cycler kiwisolver packaging python-dateutil requests
 
 } else {
     Write-Host "Python directory already exists"

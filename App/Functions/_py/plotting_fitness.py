@@ -12,7 +12,7 @@ def plot_best_fitness_history(
 ) -> None:
 
     plt.close('all')
-    
+
     if num_iterations <= 0:
         raise ValueError("num_iterations must be greater than 0")
     if len(best_values) != num_iterations:

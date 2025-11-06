@@ -1,4 +1,16 @@
 #include "FunctionObserver.hpp"
+#include "GriewankCEC2014Function.hpp"
+#include "HypersphereFunction.hpp"
+#include "SchwefelFunction.hpp"
+#include "StyblinskiTangFunction.hpp"
+
+FunctionObserver::FunctionObserver()
+{
+    subscribe(std::make_unique<HypersphereFunction>());
+    subscribe(std::make_unique<SchwefelFunction>());
+    subscribe(std::make_unique<StyblinskiTangFunction>());
+    subscribe(std::make_unique<GriewankCEC2014Function>());
+}
 
 void FunctionObserver::subscribe(std::unique_ptr<FunctionInterface> func)
 {
@@ -30,6 +42,17 @@ QString FunctionObserver::getSelectFuncName()
         (selectFunctionId.value() < functionsVec.size()))
     {
         result = functionsVec[selectFunctionId.value()].get()->getCreateFuncName().toString();
+    }
+    return result;
+}
+
+std::optional<FunctionType> FunctionObserver::getSelectType()
+{
+    std::optional<FunctionType> result;
+    if (selectFunctionId.has_value() &&
+        (selectFunctionId.value() < functionsVec.size()))
+    {
+        result = functionsVec[selectFunctionId.value()].get()->getType();
     }
     return result;
 }

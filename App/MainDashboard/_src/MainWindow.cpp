@@ -363,6 +363,7 @@ void MainWindow::verifySelectFunction(UiData &uiData)
 {
     QModelIndex index = ui->functionsListView->currentIndex();
     uiData.selectFunctionId = index.row();
+    functionObserver.choseFunctionId(uiData.selectFunctionId);
     qDebug() << "Select function:" << ui->functionsListView->currentIndex().data(Qt::DisplayRole).toString();
 }
 
@@ -375,7 +376,12 @@ void MainWindow::verifyFunctionDimension(UiData &uiData)
     if (parseStatus && (parseNumber > 1U))
     {
         qDebug() << "Input function dimension:" << parseNumber;
-        uiData.functionDimension = static_cast<decltype(uiData.functionDimension)>(parseNumber-1);
+        const auto functionType = functionObserver.getSelectType();
+        if (functionType.has_value() && (functionType.value() == FunctionType::BENCHMARK_FUNC))
+        {
+            parseNumber -= 1;
+        }
+        uiData.functionDimension = static_cast<decltype(uiData.functionDimension)>(parseNumber);
         resetErrorLine(ui->functionDimensionLine);
     }
     else

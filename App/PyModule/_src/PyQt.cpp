@@ -6,10 +6,28 @@
 
 namespace PyModuleData {
 
-PyObject* pyModuleHandler = nullptr;
+PyObject* pyFunctionFabricModuleHandler = nullptr;
+PyObject* pyFunctionCallerModuleHandler = nullptr;
+PyObject* pyFunctionVisualizationModuleHandler = nullptr;
+
 PyObject* pyFunctionHandler = nullptr;
 PyObject* pyFunctionCaller = nullptr;
 PyObject* pyFunctionPlotCaller = nullptr;
+
+bool pyImportModule(PyObject** hnd, const QStringView &name)
+{
+    PyObject* pName = PyUnicode_DecodeFSDefault(
+        name.toString().toStdString().c_str());
+    *hnd = PyImport_Import(pName);
+    Py_DECREF(pName);
+    return (*hnd != nullptr);
+}
+
+bool pyCreateFunctionHnd(PyObject** hnd, PyObject** module, const QStringView &name)
+{
+    *hnd = PyObject_GetAttrString(*module, name.toString().toStdString().c_str());
+    return (*hnd != nullptr) && PyCallable_Check(*hnd);
+}
 
 } // end PyModuleData
 
@@ -17,43 +35,48 @@ bool PyQt::startPython()
 {
     using namespace PyModuleData;
 
-    if (!Py_IsInitialized())
+    bool status = (Py_IsInitialized() == 1) ? true : false;
+
+    if (!status)
     {
-        pyInitConfig();
-        Py_Initialize();
-
-        PyObject* sysPath = PySys_GetObject("path");
-        PyObject* pyPath = PyUnicode_FromString(PyModulePath.toString().toStdString().c_str());
-        PyList_Append(sysPath, pyPath);
-        Py_DECREF(pyPath);
-
-        PyObject* pName = PyUnicode_DecodeFSDefault(PyModuleName.toString().toStdString().c_str());
-        pyModuleHandler = PyImport_Import(pName);
-        Py_DECREF(pName);
-
-        if (pyModuleHandler != nullptr)
+        do
         {
-            qDebug() << "Python module found";
+            status = pyInitConfig();
+            if (!status)
+            {
+                qDebug() << "Python init config error";
+                break;
+            }
 
-            pyFunctionPlotCaller = PyObject_GetAttrString(pyModuleHandler,
-                                                          PyShowCharFunctionName.toString().toStdString().c_str());
-            if(!pyFunctionPlotCaller)
+            Py_Initialize();
+
+            status = addModulePath();
+            if (!status)
+            {
+                qDebug() << "Python config path error";
+                break;
+            }
+
+            status = createFileHandlers();
+            if (!status)
+            {
+                qDebug() << "Python create file handlers error";
+                break;
+            }
+
+            status = createFunctionHandlers();
+            if (!status)
             {
                 PyErr_Print();
-                qDebug() << "Not create callable show function handler";
+                qDebug() << "Python create functions handlers error";
+                break;
             }
-        }
-        else
-        {
-            PyErr_Print();
-            qDebug() << "Python module not found";
-        }
+
+            qDebug() << "Initialize Python interpreter success";
+        } while(false);
     }
 
-    return ((Py_IsInitialized() == 1) &&
-            pyModuleHandler &&
-            PyCallable_Check(pyFunctionPlotCaller))
-               ? true : false;
+    return status;
 }
 
 bool PyQt::pyInitConfig()
@@ -77,16 +100,67 @@ bool PyQt::pyInitConfig()
     return result;
 }
 
+bool PyQt::addModulePath()
+{
+    PyObject* sysPath = PySys_GetObject("path");
+    PyObject* pyPath = PyUnicode_FromString(PyModulePath.toString().toStdString().c_str());
+    const qint32 status = PyList_Append(sysPath, pyPath);
+    Py_DECREF(pyPath);
+    return (status != -1) ? true : false;
+}
+
+bool PyQt::createFileHandlers()
+{
+    using namespace PyModuleData;
+
+    bool status = pyImportModule(&pyFunctionFabricModuleHandler, PyFunctionFabricModuleName);
+    status = pyImportModule(&pyFunctionCallerModuleHandler, PyFunctionCallerModuleName) & status;
+    status = pyImportModule(&pyFunctionVisualizationModuleHandler, PyFunctionVisualizationModuleName) & status;
+
+    return status;
+}
+
+bool PyQt::createFunctionHandlers()
+{
+    using namespace PyModuleData;
+
+    bool status = pyCreateFunctionHnd(&pyFunctionCaller,
+                                      &pyFunctionCallerModuleHandler,
+                                      PyCalcFunctionName);
+    status = pyCreateFunctionHnd(&pyFunctionPlotCaller,
+                                 &pyFunctionVisualizationModuleHandler,
+                                 PyShowCharFunctionName) & status;
+
+    return status;
+}
+
 void PyQt::stopPython()
 {
-    if (PyModuleData::pyModuleHandler != nullptr)
+    using namespace PyModuleData;
+
+    qDebug() << "Deinit Python modules";
+    if (pyFunctionFabricModuleHandler != nullptr)
     {
-        qDebug() << "Deinit Python module";
-        Py_XDECREF(PyModuleData::pyFunctionPlotCaller);
-        Py_DECREF(PyModuleData::pyModuleHandler);
-        PyModuleData::pyFunctionPlotCaller = nullptr;
-        PyModuleData::pyModuleHandler = nullptr;
+        Py_DECREF(pyFunctionFabricModuleHandler);
+        pyFunctionFabricModuleHandler = nullptr;
     }
+
+    if (pyFunctionCallerModuleHandler != nullptr)
+    {
+        Py_XDECREF(pyFunctionCaller);
+        Py_DECREF(pyFunctionCallerModuleHandler);
+        pyFunctionCaller = nullptr;
+        pyFunctionCallerModuleHandler = nullptr;
+    }
+
+    if (pyFunctionVisualizationModuleHandler != nullptr)
+    {
+        Py_XDECREF(pyFunctionPlotCaller);
+        Py_DECREF(pyFunctionVisualizationModuleHandler);
+        pyFunctionPlotCaller = nullptr;
+        pyFunctionVisualizationModuleHandler = nullptr;
+    }
+
     Py_Finalize();
 }
 
@@ -94,25 +168,18 @@ bool PyQt::makeFunction(const QString& funcName, const size_t dimension)
 {
     using namespace PyModuleData;
 
-    if (pyModuleHandler && (dimension >= 1U))
+    bool status = false;
+
+    if ((pyFunctionHandler == nullptr) && (dimension >= 1U))
     {
-        pyFunctionHandler = PyObject_CallMethod(pyModuleHandler,
+        pyFunctionHandler = PyObject_CallMethod(pyFunctionFabricModuleHandler,
                                                 funcName.toStdString().c_str(),
                                                 "(i)",
                                                 dimension);
         if (pyFunctionHandler)
         {
-            pyFunctionCaller = PyObject_GetAttrString(pyModuleHandler,
-                                                      PyCalcFunctionName.toString().toStdString().c_str());
-            if(pyFunctionCaller && PyCallable_Check(pyFunctionCaller))
-            {
-                qDebug() << "Crate Python functions handlers";
-            }
-            else
-            {
-                PyErr_Print();
-                qDebug() << "Not create callable function handler";
-            }
+            qDebug() << "Create function object success";
+            status = true;
         }
         else
         {
@@ -122,25 +189,16 @@ bool PyQt::makeFunction(const QString& funcName, const size_t dimension)
     }
     else
     {
-        if (pyModuleHandler)
-        {
-            qDebug() << "Python module handler not initialized";
-        }
-        if (dimension <= 1U)
-        {
-            qDebug() << "Function dim must be bigger than 1";
-        }
+        qDebug() << "Function parameters error";
     }
 
-    return (pyFunctionHandler && pyFunctionCaller) ? true : false;
+    return status;
 }
 
 void PyQt::discardFunction()
 {
     Py_XDECREF(PyModuleData::pyFunctionHandler);
-    Py_XDECREF(PyModuleData::pyFunctionCaller);
     PyModuleData::pyFunctionHandler = nullptr;
-    PyModuleData::pyFunctionCaller = nullptr;
 }
 
 bool PyQt::calcPoint(const std::vector<qreal>& point, qreal &val)

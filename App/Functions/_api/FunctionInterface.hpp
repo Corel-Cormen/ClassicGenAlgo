@@ -2,15 +2,23 @@
 
 #include <QStringView>
 
+enum class FunctionType : uint8_t
+{
+    BENCHMARK_FUNC = 0,
+    CEC_FUNC = 1,
+};
+
 class FunctionInterface
 {
 public:
     FunctionInterface() = delete;
 
     explicit FunctionInterface(QStringView funcName,
-                               QStringView crateFuncName) :
+                               QStringView crateFuncName,
+                               FunctionType functionType) :
         funcName{funcName},
-        crateFuncName{crateFuncName}
+        crateFuncName{crateFuncName},
+        functionType{functionType}
     {}
 
     virtual ~FunctionInterface() = default;
@@ -25,7 +33,13 @@ public:
         return crateFuncName;
     }
 
+    inline FunctionType getType() const
+    {
+        return functionType;
+    }
+
 private:
-    QStringView funcName;
-    QStringView crateFuncName;
+    const QStringView funcName;
+    const QStringView crateFuncName;
+    const FunctionType functionType;
 };

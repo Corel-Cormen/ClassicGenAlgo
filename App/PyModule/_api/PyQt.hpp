@@ -23,9 +23,16 @@ public:
 private:
     static constexpr QStringView PyMainPath{u"../python"};
     static constexpr QStringView PyModulePath{u"_py"};
-    static constexpr QStringView PyModuleName{u"functions"};
+
+    static constexpr QStringView PyFunctionFabricModuleName{u"benchmark_funcs"};
+    static constexpr QStringView PyFunctionCallerModuleName{u"function_caller"};
+    static constexpr QStringView PyFunctionVisualizationModuleName{u"visualization"};
+
     static constexpr QStringView PyCalcFunctionName{u"call_func"};
     static constexpr QStringView PyShowCharFunctionName{u"show_char"};
 
     static bool pyInitConfig();
+    static bool addModulePath();
+    static bool createFileHandlers();
+    static bool createFunctionHandlers();
 };

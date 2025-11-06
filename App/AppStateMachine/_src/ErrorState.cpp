@@ -33,6 +33,7 @@ void ErrorState::run()
             window.showWarningMessage("Verify input random seed.");
             break;
         case Faults::INPUT_FUNCTION_PARAMETERS_ERROR:
+        case Faults::PYTHON_FUNC_CALLER_ERROR:
             window.showWarningMessage("Verify input function parameters.");
             break;
         case Faults::INPUT_ALGORITHM_PARAMETRS_ERROR:
@@ -42,7 +43,6 @@ void ErrorState::run()
             window.showWarningMessage("Verify input algorithm parameters.\nError algorith during calculate.");
             break;
         case Faults::RUN_PYTHON_ERROR:
-        case Faults::PYTHON_FUNC_CALLER_ERROR:
             window.showCriticalMessage("Run Python error.");
             break;
         default:

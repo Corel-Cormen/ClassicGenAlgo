@@ -11,7 +11,7 @@ def plot_and_save_3d(
         show: bool = False,
         plot_type: Literal["scatter", "surface", "contour"] = "scatter"
 ) -> None:
-    
+
     plt.close('all')
 
     if len(points) != len(values):

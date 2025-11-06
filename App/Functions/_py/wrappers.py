@@ -12,7 +12,7 @@ def plot_fitness_summary(
 ) -> None:
     import os
     os.makedirs(output_dir, exist_ok=True)
-    
+
     plot_best_fitness_history(
         num_iterations=num_iterations,
         best_values=best_values,
@@ -20,7 +20,7 @@ def plot_fitness_summary(
         csv_path=os.path.join(output_dir, "best_fitness.csv"),
         show=show
     )
-    
+
     if avg_values is not None and std_values is not None:
         plot_avg_fitness_history(
             num_iterations=num_iterations,
@@ -41,7 +41,7 @@ def plot_3d_simple(
 ) -> None:
     import os
     os.makedirs(output_dir, exist_ok=True)
-    
+
     plot_and_save_3d(
         points=points,
         values=values,

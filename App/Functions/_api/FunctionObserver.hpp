@@ -12,7 +12,7 @@ class FunctionObserver
 {
 public:
 
-    void subscribe(std::unique_ptr<FunctionInterface> func);
+    explicit FunctionObserver();
 
     std::vector<QString> getNames() const;
 
@@ -20,7 +20,11 @@ public:
 
     QString getSelectFuncName();
 
+    std::optional<FunctionType> getSelectType();
+
 private:
+
+    void subscribe(std::unique_ptr<FunctionInterface> func);
 
     std::vector<std::unique_ptr<FunctionInterface>> functionsVec = {};
     std::optional<size_t> selectFunctionId;

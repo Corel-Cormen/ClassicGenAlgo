@@ -5,7 +5,6 @@
 #include "FaultsManagerInterface.hpp"
 #include "FunctionObserver.hpp"
 #include "GeneticAlgorithm.hpp"
-#include "HypersphereFunction.hpp"
 #include "PyInterface.hpp"
 #include "UiDataHolderInterface.hpp"
 
@@ -27,8 +26,6 @@ bool GeneticAlgorithm::setupInitial()
     uiData.selectAlgoNames = getAlgoName<SelectPopulationStrategy>();
     uiData.crossoverAlgoNames = getAlgoName<CrossoverPopulationStrategy>();
     uiData.mutationAlgoNames = getAlgoName<MutationPopulationStrategy>();
-
-    functionObserver.subscribe(std::make_unique<HypersphereFunction>());
 
     return initEnvironment();
 }
@@ -58,8 +55,6 @@ bool GeneticAlgorithm::calculate()
     createSelectPopulationStrategy(uiData);
     createCrossoverPopulationStrategy(uiData);
     createMutationPopulationStrategy(uiData);
-
-    functionObserver.choseFunctionId(uiData.selectFunctionId);
 
     bool status = pyInterface.makeFunction(functionObserver.getSelectFuncName(),
                                            uiData.functionDimension);
