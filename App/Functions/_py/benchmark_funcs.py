@@ -36,43 +36,43 @@ def make_rana(dim: int) -> bf.BenchmarkFunction:
     return bf.Rana(n_dimensions=dim)
 
 def make_easom(dim: int) -> bf.BenchmarkFunction:
-    return bf.Easom(n_dimensions=dim)
+    return bf.Easom()
 
 def make_de_jong_3(dim: int) -> bf.BenchmarkFunction:
     return bf.DeJong3(n_dimensions=dim)
 
 def make_de_jong_5(dim: int) -> bf.BenchmarkFunction:
-    return bf.DeJong5(n_dimensions=dim)
+    return bf.DeJong5()
 
 def make_goldstein_and_price(dim: int) -> bf.BenchmarkFunction:
-    return bf.GoldsteinAndPrice(n_dimensions=dim)
+    return bf.GoldsteinAndPrice()
 
 def make_picheny_goldstein_and_price(dim: int) -> bf.BenchmarkFunction:
-    return bf.PichenyGoldsteinAndPrice(n_dimensions=dim)
+    return bf.PichenyGoldsteinAndPrice()
 
 def make_styblinski_tang(dim: int) -> bf.BenchmarkFunction:
     return bf.StyblinskiTang(n_dimensions=dim)
 
 def make_mc_cormick(dim: int) -> bf.BenchmarkFunction:
-    return bf.McCormick(n_dimensions=dim)
+    return bf.McCormick()
 
 def make_schaffer_2(dim: int) -> bf.BenchmarkFunction:
-    return bf.Schaffer2(n_dimensions=dim)
+    return bf.Schaffer2()
 
-def make_Himmelblau(dim: int) -> bf.BenchmarkFunction:
-    return bf.Himmelblau(n_dimensions=dim)
+def make_himmelblau(dim: int) -> bf.BenchmarkFunction:
+    return bf.Himmelblau()
 
 def make_pits_and_holes(dim: int) -> bf.BenchmarkFunction:
-    return bf.PitsAndHoles(n_dimensions=dim)
+    return bf.PitsAndHoles()
 
 def make_bc_1(dim: int) -> bf.BenchmarkFunction:
     return bf.BC_1(n_dimensions=dim)
 
 def make_bc_2(dim: int) -> bf.BenchmarkFunction:
-    return bf.BC_2(n_dimensions=dim)
+    return bf.BC_2()
 
 def make_bc_35(dim: int) -> bf.BenchmarkFunction:
-    return bf.BC_35(n_dimensions=dim)
+    return bf.BC_35()
 
 def make_griewank_cec2014(dim: int, highlight_point=None):
     if dim not in [10, 30, 50]:
