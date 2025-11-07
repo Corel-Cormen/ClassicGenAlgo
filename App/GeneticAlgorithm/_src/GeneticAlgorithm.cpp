@@ -123,11 +123,6 @@ bool GeneticAlgorithm::calculate()
                                           pathResultSave + "/avg_fitness.png",
                                           pathResultSave + "/avg_fitness.csv",
                                           uiData.showCharts);
-
-                    for(const auto &min : minVec)
-                    {
-                        qDebug() << min.value;
-                    }
                 }
             }
         }

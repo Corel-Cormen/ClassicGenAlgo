@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "AlgoStatisticLogger.hpp"
+#include "AlgoPerfTest.hpp"
 #include "AppContext.hpp"
 #include "ErrorState.hpp"
 #include "FaultsManager.hpp"
@@ -36,9 +37,11 @@ public:
                                                               *python,
                                                               *algoLogger);
 
+        algoPerfTest = std::make_unique<AlgoPerfTest>(*geneticAlgorithm);
+
         preinitState = std::make_unique<PreinitState>(*faultsManager, *window, *geneticAlgorithm);
         initrunState = std::make_unique<InitRunState>(*faultsManager, *window);
-        runState = std::make_unique<RunState>(*geneticAlgorithm);
+        runState = std::make_unique<RunState>(*algoPerfTest);
         errorState = std::make_unique<ErrorState>(*faultsManager, *window);
         shutdownState = std::make_unique<ShutdownState>(*context, *geneticAlgorithm);
         machine = std::make_unique<StateMachine>(*preinitState, *initrunState, *runState, *errorState, *shutdownState);
@@ -56,6 +59,7 @@ private:
     inline static std::unique_ptr<FunctionObserver> functionsObserver;
     inline static std::unique_ptr<PyInterface> python;
     inline static std::unique_ptr<AlgoLoggerInterface> algoLogger;
+    inline static std::unique_ptr<AlgoPerfTest> algoPerfTest;
 
     inline static std::unique_ptr<WindowInterface> window;
     inline static std::unique_ptr<GeneticAlgorithmInterface> geneticAlgorithm;

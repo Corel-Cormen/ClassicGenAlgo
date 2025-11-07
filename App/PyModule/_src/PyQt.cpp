@@ -338,28 +338,46 @@ void PyQt::plotBestValues(const std::vector<GA::Types::Points> &bestValues,
     using namespace PyModuleData;
 
     const size_t chartsSize = bestValues.size();
-    PyObject* PyMinPoints = PyList_New(chartsSize);
+    PyObject* PyMinValue = PyList_New(chartsSize);
     for (size_t i = 0U; i < chartsSize; ++i)
     {
-        PyList_SetItem(PyMinPoints, i, PyFloat_FromDouble(bestValues[i].value));
+        PyList_SetItem(PyMinValue, i, PyFloat_FromDouble(bestValues[i].value));
     }
 
-    constexpr size_t functionSumaryArgQuantitiy = 5U;
+    PyObject* PyPointsList = PyList_New(chartsSize);
+    std::vector<PyObject*> pyPoints;
+    for (size_t i = 0U; i < chartsSize; ++i)
+    {
+        pyPoints.emplace_back(PyList_New(bestValues[i].point.size()));
+        for (size_t j = 0; j < bestValues[i].point.size(); ++j)
+        {
+            PyList_SetItem(pyPoints[i], j, PyFloat_FromDouble(bestValues[i].point[j]));
+        }
+        PyList_SetItem(PyPointsList, i, pyPoints[i]);
+    }
+
+    constexpr size_t functionSumaryArgQuantitiy = 6U;
     PyObject* PyChartsSize = PyLong_FromSize_t(chartsSize);
     PyObject* PySavePlotPath = PyUnicode_FromString(saveBestPlotPath.toStdString().c_str());
     PyObject* PySaveDataPath = PyUnicode_FromString(saveBestDataPath.toStdString().c_str());
     PyObject* PyShowFlag = PyBool_FromLong(showFlag ? 1 : 0);
     PyObject* PyArgsTuple = PyTuple_Pack(functionSumaryArgQuantitiy,
                                          PyChartsSize,
-                                         PyMinPoints,
+                                         PyMinValue,
                                          PySavePlotPath,
                                          PySaveDataPath,
-                                         PyShowFlag);
+                                         PyShowFlag,
+                                         PyPointsList);
 
     PyObject_CallObject(pySummaryPlotCaller, PyArgsTuple);
 
     Py_DECREF(PyChartsSize);
-    Py_DECREF(PyMinPoints);
+    Py_DECREF(PyMinValue);
+    for (size_t i = 0; i < chartsSize; ++i)
+    {
+        Py_DECREF(pyPoints[i]);
+    }
+    Py_DECREF(PyPointsList);
     Py_DECREF(PySavePlotPath);
     Py_DECREF(PySaveDataPath);
     Py_DECREF(PyShowFlag);

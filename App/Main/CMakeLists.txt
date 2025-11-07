@@ -21,6 +21,7 @@ target_link_libraries(ClassicGenAlgo
     MainDashboard
     UiDataHolder
     AlgoLogger
+    AlgoPerfTest
 )
 
 set_target_properties(ClassicGenAlgo PROPERTIES
