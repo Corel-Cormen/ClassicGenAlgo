@@ -1,3 +1,4 @@
+import json
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import List
@@ -8,7 +9,8 @@ def plot_best_fitness_history(
         best_values: List[float],
         plot_path: str = "best_fitness.png",
         csv_path: str = "best_fitness.csv",
-        show: bool = False
+        show: bool = False,
+        points: List[List[float]] = None
 ) -> None:
 
     plt.close('all')
@@ -19,14 +21,19 @@ def plot_best_fitness_history(
         raise ValueError(f"best_values length {len(best_values)} != num_iterations {num_iterations}")
     if not best_values:
         raise ValueError("best_values list is empty")
+    if points is not None and len(points) != num_iterations:
+        raise ValueError("points length must equal num_iterations")
 
     iterations = list(range(1, num_iterations + 1))
 
     with open(csv_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        writer.writerow(['iteration', 'best_value'])
+        writer.writerow(['iteration', 'best_value', 'points'])
         for i, best in zip(iterations, best_values):
-            writer.writerow([i, best])
+            vec = ''
+            if points is not None:
+                vec = json.dumps(points[i-1])
+            writer.writerow([i, best, vec])
 
     plt.figure(figsize=(10, 6))
     plt.plot(iterations, best_values, marker='o', linewidth=2, markersize=4, color='blue', label='Best Value')
