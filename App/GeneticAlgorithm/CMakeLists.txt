@@ -18,6 +18,7 @@ target_link_libraries(GeneticAlgorithm
     Functions
     PyModule
     UiDataHolder
+    AlgoLogger
 )
 
 target_include_directories(GeneticAlgorithm

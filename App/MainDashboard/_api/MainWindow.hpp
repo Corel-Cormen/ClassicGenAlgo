@@ -64,6 +64,7 @@ private:
     void verifyMutationAlgo(UiData &uiData);
     static bool verifyMutationAlgoBox(QComboBox *comboBox, UiData &uiData);
     void verifyEliteStrategy(UiData &uiData);
+    void verifyShowChars(UiData &uiData);
 
     static constexpr QLatin1StringView decimalExpression{"^[0-9+\\-]+$"};
     static constexpr QLatin1StringView floatExpression{"^[0-9+\\-.]+$"};

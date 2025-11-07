@@ -20,6 +20,7 @@ target_link_libraries(ClassicGenAlgo
     PyModule
     MainDashboard
     UiDataHolder
+    AlgoLogger
 )
 
 set_target_properties(ClassicGenAlgo PROPERTIES

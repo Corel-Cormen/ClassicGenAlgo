@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "AlgoStatisticLogger.hpp"
 #include "AppContext.hpp"
 #include "ErrorState.hpp"
 #include "FaultsManager.hpp"
@@ -26,9 +27,14 @@ public:
         faultsManager = std::make_unique<FaultsManager>();
         functionsObserver = std::make_unique<FunctionObserver>();
         python = std::make_unique<PyQt>();
+        algoLogger = std::make_unique<AlgoStatisticLogger>();
 
         window = std::make_unique<MainWindow>(*faultsManager, *uiDataHolder, *functionsObserver);
-        geneticAlgorithm = std::make_unique<GeneticAlgorithm>(*faultsManager, *uiDataHolder, *functionsObserver, *python);
+        geneticAlgorithm = std::make_unique<GeneticAlgorithm>(*faultsManager,
+                                                              *uiDataHolder,
+                                                              *functionsObserver,
+                                                              *python,
+                                                              *algoLogger);
 
         preinitState = std::make_unique<PreinitState>(*faultsManager, *window, *geneticAlgorithm);
         initrunState = std::make_unique<InitRunState>(*faultsManager, *window);
@@ -49,6 +55,7 @@ private:
     inline static std::unique_ptr<FaultsManagerInterface> faultsManager;
     inline static std::unique_ptr<FunctionObserver> functionsObserver;
     inline static std::unique_ptr<PyInterface> python;
+    inline static std::unique_ptr<AlgoLoggerInterface> algoLogger;
 
     inline static std::unique_ptr<WindowInterface> window;
     inline static std::unique_ptr<GeneticAlgorithmInterface> geneticAlgorithm;

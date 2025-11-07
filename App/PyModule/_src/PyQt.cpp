@@ -9,10 +9,13 @@ namespace PyModuleData {
 PyObject* pyFunctionFabricModuleHandler = nullptr;
 PyObject* pyFunctionCallerModuleHandler = nullptr;
 PyObject* pyFunctionVisualizationModuleHandler = nullptr;
+PyObject* pyFunctionVisualizationChartsModuleHandler = nullptr;
 
 PyObject* pyFunctionHandler = nullptr;
 PyObject* pyFunctionCaller = nullptr;
 PyObject* pyFunctionPlotCaller = nullptr;
+PyObject* pySummaryPlotCaller = nullptr;
+PyObject* pyFitnessHistoryPlotCaller = nullptr;
 
 bool pyImportModule(PyObject** hnd, const QStringView &name)
 {
@@ -116,6 +119,7 @@ bool PyQt::createFileHandlers()
     bool status = pyImportModule(&pyFunctionFabricModuleHandler, PyFunctionFabricModuleName);
     status = pyImportModule(&pyFunctionCallerModuleHandler, PyFunctionCallerModuleName) & status;
     status = pyImportModule(&pyFunctionVisualizationModuleHandler, PyFunctionVisualizationModuleName) & status;
+    status = pyImportModule(&pyFunctionVisualizationChartsModuleHandler, PyFunctionVisualizationChartsModuleName) & status;
 
     return status;
 }
@@ -130,6 +134,12 @@ bool PyQt::createFunctionHandlers()
     status = pyCreateFunctionHnd(&pyFunctionPlotCaller,
                                  &pyFunctionVisualizationModuleHandler,
                                  PyShowCharFunctionName) & status;
+    status = pyCreateFunctionHnd(&pySummaryPlotCaller,
+                                 &pyFunctionVisualizationChartsModuleHandler,
+                                 PyShowCharSummaryName) & status;
+    status = pyCreateFunctionHnd(&pyFitnessHistoryPlotCaller,
+                                 &pyFunctionVisualizationChartsModuleHandler,
+                                 PyShowCharFitnessHistoryName) & status;
 
     return status;
 }
@@ -159,6 +169,16 @@ void PyQt::stopPython()
         Py_DECREF(pyFunctionVisualizationModuleHandler);
         pyFunctionPlotCaller = nullptr;
         pyFunctionVisualizationModuleHandler = nullptr;
+    }
+
+    if (pyFunctionVisualizationChartsModuleHandler != nullptr)
+    {
+        Py_XDECREF(pySummaryPlotCaller);
+        Py_XDECREF(pyFitnessHistoryPlotCaller);
+        Py_DECREF(pyFunctionVisualizationChartsModuleHandler);
+        pySummaryPlotCaller = nullptr;
+        pyFitnessHistoryPlotCaller = nullptr;
+        pyFunctionVisualizationChartsModuleHandler = nullptr;
     }
 
     Py_Finalize();
@@ -247,30 +267,148 @@ bool PyQt::calcPoint(const std::vector<qreal>& point, qreal &val)
     return status;
 }
 
-void PyQt::showPlot(const GA::Types::GenomePoint &point)
+void PyQt::showPlot(const GA::Types::Points &point,
+                    const QString &savePath,
+                    const bool showFlag)
 {
     using namespace PyModuleData;
 
-    if(pyFunctionHandler && pyFunctionPlotCaller)
+    if (pyFunctionHandler && pyFunctionPlotCaller)
     {
         PyObject* pyPoint = PyList_New(point.point.size());
         for (size_t i = 0U; i < point.point.size(); ++i)
         {
-            PyList_SetItem(pyPoint, i, PyFloat_FromDouble(point.point[i].val()));
+            PyList_SetItem(pyPoint, i, PyFloat_FromDouble(point.point[i]));
         }
 
         PyObject* PyPointsList = PyList_New(1);
         PyList_SetItem(PyPointsList, 0, pyPoint);
 
-        constexpr size_t functionArgQuantitiy = 2U;
+        constexpr size_t functionArgQuantitiy = 4U;
+        PyObject* PySavePlotPath = PyUnicode_FromString(savePath.toStdString().c_str());
+        PyObject* PyShowFlag = PyBool_FromLong(showFlag ? 1 : 0);
         PyObject* pyArgsTuple = PyTuple_Pack(functionArgQuantitiy,
                                              PyModuleData::pyFunctionHandler,
-                                             PyPointsList);
+                                             PyPointsList,
+                                             PySavePlotPath,
+                                             PyShowFlag);
 
         PyObject_CallObject(pyFunctionPlotCaller, pyArgsTuple);
 
         Py_DECREF(pyPoint);
         Py_DECREF(PyPointsList);
+        Py_DECREF(PySavePlotPath);
+        Py_DECREF(PyShowFlag);
         Py_DECREF(pyArgsTuple);
     }
+}
+
+void PyQt::showStats(const std::vector<GA::Types::Points> &bestValues,
+                     const std::vector<qreal> avgValues,
+                     const std::vector<qreal> stdValues,
+                     const QString &saveBestPlotPath,
+                     const QString &saveBestDataPath,
+                     const QString &saveStatPlotPath,
+                     const QString &saveStatDataPath,
+                     const bool showFlag)
+{
+    using namespace PyModuleData;
+
+    if (pyFunctionVisualizationChartsModuleHandler &&
+        pySummaryPlotCaller &&
+        pyFitnessHistoryPlotCaller)
+    {
+        plotBestValues(bestValues,
+                       saveBestPlotPath,
+                       saveBestDataPath,
+                       showFlag);
+        plotStatsValues(avgValues,
+                        stdValues,
+                        saveStatPlotPath,
+                        saveStatDataPath,
+                        showFlag);
+    }
+}
+
+void PyQt::plotBestValues(const std::vector<GA::Types::Points> &bestValues,
+                          const QString &saveBestPlotPath,
+                          const QString &saveBestDataPath,
+                          const bool showFlag)
+{
+    using namespace PyModuleData;
+
+    const size_t chartsSize = bestValues.size();
+    PyObject* PyMinPoints = PyList_New(chartsSize);
+    for (size_t i = 0U; i < chartsSize; ++i)
+    {
+        PyList_SetItem(PyMinPoints, i, PyFloat_FromDouble(bestValues[i].value));
+    }
+
+    constexpr size_t functionSumaryArgQuantitiy = 5U;
+    PyObject* PyChartsSize = PyLong_FromSize_t(chartsSize);
+    PyObject* PySavePlotPath = PyUnicode_FromString(saveBestPlotPath.toStdString().c_str());
+    PyObject* PySaveDataPath = PyUnicode_FromString(saveBestDataPath.toStdString().c_str());
+    PyObject* PyShowFlag = PyBool_FromLong(showFlag ? 1 : 0);
+    PyObject* PyArgsTuple = PyTuple_Pack(functionSumaryArgQuantitiy,
+                                         PyChartsSize,
+                                         PyMinPoints,
+                                         PySavePlotPath,
+                                         PySaveDataPath,
+                                         PyShowFlag);
+
+    PyObject_CallObject(pySummaryPlotCaller, PyArgsTuple);
+
+    Py_DECREF(PyChartsSize);
+    Py_DECREF(PyMinPoints);
+    Py_DECREF(PySavePlotPath);
+    Py_DECREF(PySaveDataPath);
+    Py_DECREF(PyShowFlag);
+    Py_DECREF(PyArgsTuple);
+}
+
+void PyQt::plotStatsValues(const std::vector<qreal> avgValues,
+                           const std::vector<qreal> stdValues,
+                           const QString &saveStatPlotPath,
+                           const QString &saveStatDataPath,
+                           const bool showFlag)
+{
+    using namespace PyModuleData;
+
+    const size_t chartsAvgSize = avgValues.size();
+    PyObject* PyChartsSize = PyLong_FromSize_t(chartsAvgSize);
+    PyObject* PyAvgPoints = PyList_New(chartsAvgSize);
+    for (size_t i = 0U; i < chartsAvgSize; ++i)
+    {
+        PyList_SetItem(PyAvgPoints, i, PyFloat_FromDouble(avgValues[i]));
+    }
+
+    const size_t chartsStdSize = avgValues.size();
+    PyObject* PyStdPoints = PyList_New(chartsStdSize);
+    for (size_t i = 0U; i < chartsStdSize; ++i)
+    {
+        PyList_SetItem(PyStdPoints, i, PyFloat_FromDouble(stdValues[i]));
+    }
+
+    PyObject* PySavePlotPath = PyUnicode_FromString(saveStatPlotPath.toStdString().c_str());
+    PyObject* PySaveDataPath = PyUnicode_FromString(saveStatDataPath.toStdString().c_str());
+    PyObject* PyShowFlag = PyBool_FromLong(showFlag ? 1 : 0);
+
+    constexpr size_t functionHistoryArgQuantitiy = 6U;
+    PyObject* PyArgsTuple = PyTuple_Pack(functionHistoryArgQuantitiy,
+                                         PyChartsSize,
+                                         PyAvgPoints,
+                                         PyStdPoints,
+                                         PySavePlotPath,
+                                         PySaveDataPath,
+                                         PyShowFlag);
+
+    PyObject_CallObject(pyFitnessHistoryPlotCaller, PyArgsTuple);
+
+    Py_DECREF(PyChartsSize);
+    Py_DECREF(PyAvgPoints);
+    Py_DECREF(PyStdPoints);
+    Py_DECREF(PySavePlotPath);
+    Py_DECREF(PySaveDataPath);
+    Py_DECREF(PyShowFlag);
+    Py_DECREF(PyArgsTuple);
 }

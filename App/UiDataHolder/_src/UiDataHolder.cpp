@@ -16,7 +16,8 @@ void UiDataHolder::resetDefault()
     uiData.crossoverAlgoIndex = 0U;
     uiData.crossingPropablity = 0.5;
     uiData.mutationAlgoIndex = 0;
-    uiData.mutationPropablity = 0.3;
+    uiData.mutationPropablity = 0.5;
     uiData.eliteStrategyEnable = false;
     uiData.eliteStrategyQuantity = 2;
+    uiData.showCharts = true;
 }

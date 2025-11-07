@@ -28,6 +28,7 @@ struct UiData
     qreal mutationPropablity;
     bool eliteStrategyEnable;
     quint32 eliteStrategyQuantity;
+    bool showCharts;
 };
 
 #endif // UI_DATA_H

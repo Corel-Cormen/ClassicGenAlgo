@@ -106,6 +106,8 @@ void MainWindow::load()
     ui->randomSeedLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
 
+    ui->showChartsCheckBox->setChecked(uiData.showCharts);
+
     ui->functionDimensionLine->setText(QString::number(uiData.functionDimension));
     ui->functionDimensionLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
@@ -335,6 +337,7 @@ void MainWindow::onStartCalcButton()
     verifyCrossoverAlgo(uiData);
     verifyMutationAlgo(uiData);
     verifyEliteStrategy(uiData);
+    verifyShowChars(uiData);
 
     emit triggerCalculate();
 }
@@ -717,6 +720,32 @@ void MainWindow::verifyEliteStrategy(UiData &uiData)
     {
         uiData.eliteStrategyEnable = false;
         qDebug("Ignore hold elite strategy");
+    }
+}
+
+void MainWindow::verifyShowChars(UiData &uiData)
+{
+    if (ui->showChartsCheckBox->isChecked())
+    {
+        qDebug() << "Show charts enable";
+        const auto functionType = functionObserver.getSelectType();
+        const quint8 dim = (functionType.has_value() &&
+                            (functionType.value() == FunctionType::BENCHMARK_FUNC)) ? 2U : 3U;
+        if((uiData.functionDimension == dim) ||
+            (uiData.functionDimension == (dim - 1U)))
+        {
+            uiData.showCharts = true;
+        }
+        else
+        {
+            qDebug() << "Ignore show charts too big dimension";
+            uiData.showCharts = false;
+        }
+    }
+    else
+    {
+        qDebug() << "Show charts disable";
+        uiData.showCharts = false;
     }
 }
 

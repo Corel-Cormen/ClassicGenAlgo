@@ -3,6 +3,8 @@
 #include <optional>
 #include <variant>
 
+#include <QString>
+
 #include "BestSelectionAlgo.hpp"
 #include "DiscreteCrossover.hpp"
 #include "EdgeMutationAlgo.hpp"
@@ -20,6 +22,7 @@
 #include "TwoPointMutationAlgo.hpp"
 #include "UniformCrossover.hpp"
 
+class AlgoLoggerInterface;
 class FaultsManagerInterface;
 class FunctionObserver;
 class PyInterface;
@@ -32,7 +35,8 @@ public:
     explicit GeneticAlgorithm(FaultsManagerInterface &faultsManagerRef,
                               UiDataHolderInterface &uiDataHolderRef,
                               FunctionObserver &functionObserverRef,
-                              PyInterface &pyInterfaceRef);
+                              PyInterface &pyInterfaceRef,
+                              AlgoLoggerInterface &algoLoggerRef);
 
     bool setupInitial() override;
 
@@ -45,7 +49,9 @@ private:
     UiDataHolderInterface &uiDataHolder;
     FunctionObserver &functionObserver;
     PyInterface &pyInterface;
+    AlgoLoggerInterface &algoLogger;
     RandomCore random;
+    QString pathResultSave = "";
 
     GA::Types::GenomePopulation genomeVec;
 

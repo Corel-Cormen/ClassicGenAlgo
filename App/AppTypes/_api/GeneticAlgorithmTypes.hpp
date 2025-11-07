@@ -19,5 +19,11 @@ struct GenomePoint
 
 using GenomePopulation = std::vector<GenomePoint>;
 
+struct Points
+{
+    std::vector<qreal> point;
+    qreal value;
+};
+
 } // end Types
 } // end GA

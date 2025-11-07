@@ -2,6 +2,7 @@
 
 #include <QDebug>
 
+#include "AlgoLoggerInterface.hpp"
 #include "FaultsManagerInterface.hpp"
 #include "FunctionObserver.hpp"
 #include "GeneticAlgorithm.hpp"
@@ -11,11 +12,13 @@
 GeneticAlgorithm::GeneticAlgorithm(FaultsManagerInterface &faultsManagerRef,
                                    UiDataHolderInterface &uiDataHolderRef,
                                    FunctionObserver &functionObserverRef,
-                                   PyInterface &pyInterfaceRef) :
+                                   PyInterface &pyInterfaceRef,
+                                   AlgoLoggerInterface &algoLoggerRef) :
     faultsManager{faultsManagerRef},
     uiDataHolder{uiDataHolderRef},
     functionObserver{functionObserverRef},
-    pyInterface{pyInterfaceRef}
+    pyInterface{pyInterfaceRef},
+    algoLogger{algoLoggerRef}
 {}
 
 bool GeneticAlgorithm::setupInitial()
@@ -60,7 +63,10 @@ bool GeneticAlgorithm::calculate()
                                            uiData.functionDimension);
     if (status)
     {
+        algoLogger.reset();
+        pathResultSave = algoLogger.createResultPath();
         random.init(uiData.randomSeed);
+
         status = createPopulation(uiData);
         if(status)
         {
@@ -74,6 +80,7 @@ bool GeneticAlgorithm::calculate()
                     qDebug() << "Evaluate population error";
                     break;
                 }
+                algoLogger.colectData(genomeVec);
 
                 status = selectPopulation(uiData);
                 if (!status)
@@ -97,12 +104,32 @@ bool GeneticAlgorithm::calculate()
                 }
             }
 
-            for (int i = 0; i < 10; ++i)
+            if(status)
             {
-                qDebug() << genomeVec[i].value;
-            }
+                qDebug() << "Calculate final result";
+                status = evaluatePopulation();
+                if(status)
+                {
+                    algoLogger.colectData(genomeVec);
+                    const auto& minVec = algoLogger.min();
+                    pyInterface.showPlot(minVec[minVec.size()-1],
+                                         pathResultSave + "/function_plot.png",
+                                         uiData.showCharts);
+                    pyInterface.showStats(algoLogger.min(),
+                                          algoLogger.mean(),
+                                          algoLogger.standardDeviation(),
+                                          pathResultSave + "/best_fitness.png",
+                                          pathResultSave + "/best_fitness.csv",
+                                          pathResultSave + "/avg_fitness.png",
+                                          pathResultSave + "/avg_fitness.csv",
+                                          uiData.showCharts);
 
-            pyInterface.showPlot(genomeVec[0]);
+                    for(const auto &min : minVec)
+                    {
+                        qDebug() << min.value;
+                    }
+                }
+            }
         }
 
         if (!status)

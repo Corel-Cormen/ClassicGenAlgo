@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import List, Union
 
-def show_char(fobj: Union[bf.BenchmarkFunction, object], args: List[float] = None, dims: tuple = (0,1)) -> None:
+def show_char(fobj: Union[bf.BenchmarkFunction, object],
+              args: List[float],
+              savePath: str,
+              show: bool,
+              dims: tuple = (0,1)) -> None:
     if isinstance(fobj, bf.BenchmarkFunction):
-        if args is not None:
-            fobj.show(showPoints=args)
-        else:
-            fobj.show()
+        fobj.show(showPoints=args, savePath=savePath, show=show)
 
     elif hasattr(fobj, 'evaluate') and hasattr(fobj, 'lb') and hasattr(fobj, 'ub'):
         dim1, dim2 = dims[0], dims[1]
