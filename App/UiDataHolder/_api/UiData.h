@@ -6,6 +6,12 @@
 #include <QtTypes>
 #include <QStringView>
 
+enum class AlgorithmType : quint8
+{
+    BINARY_ALGO_TYPE = 1,
+    REAL_ALGO_TYPE = 2,
+};
+
 struct UiData
 {
     quint8 functionDimension;
@@ -21,14 +27,17 @@ struct UiData
     quint32 selectAlgoPopulationQuantity;
     quint8 tournamentPopulationQuantity;
     std::vector<quint8> crossoverAlgoNames;
+    quint8 crossoverBinaryAlgoQuantity;
     quint8 crossoverAlgoIndex;
     qreal crossingPropablity;
     std::vector<quint8> mutationAlgoNames;
+    quint8 mutationBinaryAlgoQuantity;
     quint8 mutationAlgoIndex;
     qreal mutationPropablity;
     bool eliteStrategyEnable;
     quint32 eliteStrategyQuantity;
     bool showCharts;
+    AlgorithmType algorithmType;
 };
 
 #endif // UI_DATA_H

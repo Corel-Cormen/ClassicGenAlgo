@@ -5,10 +5,12 @@ add_library(CrossoverAlgorithms STATIC
     _api/TwoPointCrossover.hpp
     _api/UniformCrossover.hpp
     _api/DiscreteCrossover.hpp
+    _api/ArithmeticCrossover.hpp
     _src/SinglePointCrossover.cpp
     _src/TwoPointCrossover.cpp
     _src/UniformCrossover.cpp
     _src/DiscreteCrossover.cpp
+    _src/ArithmeticCrossover.cpp
 )
 
 target_link_libraries(CrossoverAlgorithms

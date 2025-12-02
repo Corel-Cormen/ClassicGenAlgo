@@ -18,7 +18,10 @@ bool RandomPopulationFabric::generate_impl(GA::Types::GenomePopulation &genomeVe
         genomeVec[idx].point.reserve(uiData.functionDimension);
         for (size_t i = 0U; i < static_cast<size_t>(uiData.functionDimension); ++i)
         {
-            Genome genome;
+            const Genome::GenomeValType genType = (uiData.algorithmType == AlgorithmType::BINARY_ALGO_TYPE) ?
+                                                      Genome::GenomeValType::BINARY_GENOME_TYPE :
+                                                      Genome::GenomeValType::REAL_VALUE_GENOME_TYPE;
+            Genome genome{genType};
             if (!genome.createGenom(uiData.minSearchRange,
                                     uiData.maxSearchRange,
                                     uiData.precission))

@@ -39,9 +39,12 @@ private:
 
     QPalette originalPalette{};
 
+    void setSelectAlgorithmType(const UiData &uiData);
     static void setSelectAlgoNames(QComboBox *comboBox, const UiData &uiData);
-    static void setCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData);
-    static void setMutationAlgoNames(QComboBox *comboBox, const UiData &uiData);
+    static void setBinaryCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData);
+    static void setBinaryMutationAlgoNames(QComboBox *comboBox, const UiData &uiData);
+    static void setRealCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData);
+    static void setRealMutationAlgoNames(QComboBox *comboBox, const UiData &uiData);
 
     static void setErrorLine(QLineEdit *lineEdit);
     static void resetErrorLine(QLineEdit *lineEdit);
@@ -56,6 +59,7 @@ private:
     void verifyPrecissionRange(UiData &uiData);
     void verifyPopulation(UiData &uiData);
     void verifyGenerations(UiData &uiData);
+    void verifyAlgorithmType(UiData &uiData);
     void verifySelectAlgo(UiData &uiData);
     static bool verifySelectAlgoBox(QComboBox *comboBox, UiData &uiData);
     void verifyTournamentSize(UiData &uiData);
@@ -71,6 +75,8 @@ private:
 
 private slots:
     void onStartCalcButton();
+    void onBinaryAlgoSelect();
+    void onRealAlgoSelect();
     void selectStrategyChangeValue();
     void crossoverStrategyChangeValue();
     void eliteStrategyChangeValue();

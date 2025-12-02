@@ -5,9 +5,11 @@
 
 #include <QString>
 
+#include "ArithmeticCrossover.hpp"
 #include "BestSelectionAlgo.hpp"
 #include "DiscreteCrossover.hpp"
 #include "EdgeMutationAlgo.hpp"
+#include "GaussMutationAlgo.hpp"
 #include "GeneticAlgorithmInterface.hpp"
 #include "GeneticAlgorithmTypes.hpp"
 #include "InwerseMutationAlgo.hpp"
@@ -21,6 +23,7 @@
 #include "TwoPointCrossover.hpp"
 #include "TwoPointMutationAlgo.hpp"
 #include "UniformCrossover.hpp"
+#include "UniformMutationAlgo.hpp"
 
 class AlgoLoggerInterface;
 class FaultsManagerInterface;
@@ -69,13 +72,16 @@ private:
     using CrossoverPopulationStrategy = std::variant<SinglePointCrossover,
                                                      TwoPointCrossover,
                                                      UniformCrossover,
-                                                     DiscreteCrossover>;
+                                                     DiscreteCrossover,
+                                                     ArithmeticCrossover>;
     std::optional<CrossoverPopulationStrategy> crossoverPopulationStrategy;
 
     using MutationPopulationStrategy = std::variant<EdgeMutationAlgo,
                                                     OnePointMutationAlgo,
                                                     TwoPointMutationAlgo,
-                                                    InwerseMutationAlgo>;
+                                                    InwerseMutationAlgo,
+                                                    UniformMutationAlgo,
+                                                    GaussMutationAlgo>;
     std::optional<MutationPopulationStrategy> mutationPopulationStrategy;
 
     bool initEnvironment();

@@ -20,4 +20,5 @@ void UiDataHolder::resetDefault()
     uiData.eliteStrategyEnable = false;
     uiData.eliteStrategyQuantity = 2;
     uiData.showCharts = true;
+    uiData.algorithmType = AlgorithmType::BINARY_ALGO_TYPE;
 }

@@ -10,6 +10,12 @@ enum class CrossoverAlgoId : quint8
     TWO_POINT,
     UNIFORM,
     DISCRETE,
+
+    ARITMETIC,
+    LINEAR,
+    ALPHA_HYBRID,
+    ALPHA_BETA_HYBRID,
+    AVERAGING,
 };
 
 template <typename Base>

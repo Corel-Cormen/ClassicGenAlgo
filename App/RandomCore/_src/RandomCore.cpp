@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <QDateTime>
 #include <QDebug>
 
@@ -41,4 +43,12 @@ size_t RandomCore::randDistIndex(std::vector<qreal> dist) const
     }
 
     return randIdx;
+}
+
+qreal RandomCore::randNormal() const
+{
+    const qreal u1 = generator.generateDouble();
+    const qreal u2 = generator.generateDouble();
+
+    return std::sqrt(-2.0 * std::log(u1)) * std::cos(2.0 * M_PI * u2);
 }

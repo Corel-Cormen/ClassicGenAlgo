@@ -42,9 +42,13 @@ public:
         {
             return static_cast<T>(generator.bounded(num1, num2));
         }
+        else if constexpr (std::is_floating_point_v<T>)
+        {
+            return static_cast<T>(num1 + (num2 - num1) * generator.generateDouble());
+        }
         else
         {
-            static_assert(std::is_arithmetic_v<T>, "Rand core required integral type");
+            static_assert(std::is_arithmetic_v<T>, "Rand core required number type");
         }
     }
 
@@ -87,6 +91,8 @@ public:
     }
 
     size_t randDistIndex(std::vector<qreal> dist) const;
+
+    qreal randNormal() const;
 
 private:
     mutable QRandomGenerator generator;

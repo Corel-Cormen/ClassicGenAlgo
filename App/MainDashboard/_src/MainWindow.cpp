@@ -132,6 +132,8 @@ void MainWindow::load()
     ui->generationsLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
 
+    setSelectAlgorithmType(uiData);
+
     setSelectAlgoNames(ui->selectAlgoNameComboBox, uiData);
 
     const auto selectAlgoPopulationPercent = CommonFunc::percentOf(uiData.selectAlgoPopulationQuantity,
@@ -146,20 +148,6 @@ void MainWindow::load()
     ui->tournamentSizeLine->setValidator(
         new QRegularExpressionValidator(QRegularExpression{decimalExpression}, this));
     selectStrategyChangeValue();
-
-    setCrossoverAlgoNames(ui->crossoverAlgoComboBox, uiData);
-    connect(ui->crossoverAlgoComboBox, &QComboBox::currentIndexChanged, this,
-            &MainWindow::crossoverStrategyChangeValue);
-
-    ui->crossingPropabilityLine->setText(QString::number(uiData.crossingPropablity));
-    ui->crossingPropabilityLine->setValidator(
-        new QRegularExpressionValidator(QRegularExpression{floatExpression}, this));
-    crossoverStrategyChangeValue();
-
-    setMutationAlgoNames(ui->mutationAlgoComboBox, uiData);
-    ui->mutationProbabilityLine->setText(QString::number(uiData.mutationPropablity));
-    ui->mutationProbabilityLine->setValidator(
-        new QRegularExpressionValidator(QRegularExpression{floatExpression}, this));
 
     ui->eliteStrategyCheckBox->setChecked(uiData.eliteStrategyEnable);
     originalPalette = ui->elitePopulationLine->palette();
@@ -236,8 +224,27 @@ void MainWindow::showWarningMessage(const char* message)
     );
 }
 
+void MainWindow::setSelectAlgorithmType(const UiData &uiData)
+{
+    if(uiData.algorithmType == AlgorithmType::BINARY_ALGO_TYPE)
+    {
+        ui->binaryNumberRepresentationCheckBox->setCheckState(Qt::CheckState::Checked);
+        onBinaryAlgoSelect();
+    }
+    else
+    {
+        ui->realNumberRepresentationCheckBox->setCheckState(Qt::CheckState::Checked);
+        onRealAlgoSelect();
+    }
+    connect(ui->binaryNumberRepresentationCheckBox, &QCheckBox::checkStateChanged, this,
+            &MainWindow::onBinaryAlgoSelect);
+    connect(ui->realNumberRepresentationCheckBox, &QCheckBox::checkStateChanged, this,
+            &MainWindow::onRealAlgoSelect);
+}
+
 void MainWindow::setSelectAlgoNames(QComboBox *comboBox, const UiData &uiData)
 {
+    comboBox->clear();
     for(const auto selectAlgoId : uiData.selectAlgoNames)
     {
         switch (selectAlgoId)
@@ -259,56 +266,97 @@ void MainWindow::setSelectAlgoNames(QComboBox *comboBox, const UiData &uiData)
     comboBox->setCurrentIndex(uiData.selctAlgoIndex);
 }
 
-void MainWindow::setCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData)
+void MainWindow::setBinaryCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData)
 {
-    for(const auto crossoverAlgoId : uiData.crossoverAlgoNames)
+    comboBox->clear();
+    for (size_t idx = 0U; idx < uiData.crossoverBinaryAlgoQuantity; ++idx)
     {
-        switch (crossoverAlgoId)
+        switch (uiData.crossoverAlgoNames[idx])
         {
-        case static_cast<decltype(crossoverAlgoId)>(CrossoverAlgoId::SINGLE_POINT):
+        case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::SINGLE_POINT):
             comboBox->addItem("Signle point");
             break;
-        case static_cast<decltype(crossoverAlgoId)>(CrossoverAlgoId::TWO_POINT):
+        case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::TWO_POINT):
             comboBox->addItem("Two point");
             break;
-        case static_cast<decltype(crossoverAlgoId)>(CrossoverAlgoId::UNIFORM):
+        case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::UNIFORM):
             comboBox->addItem("Uniform");
             break;
-        case static_cast<decltype(crossoverAlgoId)>(CrossoverAlgoId::DISCRETE):
+        case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::DISCRETE):
             comboBox->addItem("Discrete");
             break;
         default:
-            qDebug() << "Add crossover algorithm not found ID:" << crossoverAlgoId;
+            qDebug() << "Add crossover algorithm not found ID:" << uiData.crossoverAlgoNames[idx];
             break;
         }
     }
-    comboBox->setCurrentIndex(uiData.crossoverAlgoIndex);
+    comboBox->setCurrentIndex(0U);
 }
 
-void MainWindow::setMutationAlgoNames(QComboBox *comboBox, const UiData &uiData)
+void MainWindow::setBinaryMutationAlgoNames(QComboBox *comboBox, const UiData &uiData)
 {
-    for(const auto mutationAlgoId : uiData.mutationAlgoNames)
+    comboBox->clear();
+    for (size_t idx = 0U; idx < uiData.mutationBinaryAlgoQuantity; ++idx)
     {
-        switch (mutationAlgoId)
+        switch (uiData.mutationAlgoNames[idx])
         {
-        case static_cast<decltype(mutationAlgoId)>(MutationAlgoId::EDGE_MUTATION):
+        case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::EDGE_MUTATION):
             comboBox->addItem("Edge mutation");
             break;
-        case static_cast<decltype(mutationAlgoId)>(MutationAlgoId::ONE_POINT_MUTATION):
+        case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::ONE_POINT_MUTATION):
             comboBox->addItem("One point mutation");
             break;
-        case static_cast<decltype(mutationAlgoId)>(MutationAlgoId::TWO_POINT_MUTATION):
+        case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::TWO_POINT_MUTATION):
             comboBox->addItem("Two points mutation");
             break;
-        case static_cast<decltype(mutationAlgoId)>(MutationAlgoId::INWERSE_MUTATION):
+        case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::INWERSE_MUTATION):
             comboBox->addItem("Inverse mutation");
             break;
         default:
-            qDebug() << "Add mutation algorithm not found ID:" << mutationAlgoId;
+            qDebug() << "Add mutation algorithm not found ID:" << uiData.mutationAlgoNames[idx];
             break;
         }
     }
-    comboBox->setCurrentIndex(uiData.mutationAlgoIndex);
+    comboBox->setCurrentIndex(0);
+}
+
+void MainWindow::setRealCrossoverAlgoNames(QComboBox *comboBox, const UiData &uiData)
+{
+    comboBox->clear();
+    for (size_t idx = uiData.crossoverBinaryAlgoQuantity; idx < uiData.crossoverAlgoNames.size(); ++idx)
+    {
+        switch (uiData.crossoverAlgoNames[idx])
+        {
+        case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::ARITMETIC):
+            comboBox->addItem("Arythmetic");
+            break;
+        default:
+            qDebug() << "Add crossover algorithm not found ID:" << uiData.crossoverAlgoNames[idx];
+            break;
+        }
+    }
+    comboBox->setCurrentIndex(0);
+}
+
+void MainWindow::setRealMutationAlgoNames(QComboBox *comboBox, const UiData &uiData)
+{
+    comboBox->clear();
+    for (size_t idx = uiData.mutationBinaryAlgoQuantity; idx < uiData.mutationAlgoNames.size(); ++idx)
+    {
+        switch (uiData.mutationAlgoNames[idx])
+        {
+        case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::UNIFORM_MUTATION):
+            comboBox->addItem("Uniform mutation");
+            break;
+        case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::GAUSS_MUTATION):
+            comboBox->addItem("Gauss mutation");
+            break;
+        default:
+            qDebug() << "Add mutation algorithm not found ID:" << uiData.mutationAlgoNames[idx];
+            break;
+        }
+    }
+    comboBox->setCurrentIndex(0);
 }
 
 void MainWindow::setErrorLine(QLineEdit *lineEdit)
@@ -332,6 +380,7 @@ void MainWindow::onStartCalcButton()
     verifyPrecissionRange(uiData);
     verifyPopulation(uiData);
     verifyGenerations(uiData);
+    verifyAlgorithmType(uiData);
     verifySelectAlgo(uiData);
     verifyTournamentSize(uiData);
     verifyCrossoverAlgo(uiData);
@@ -340,6 +389,53 @@ void MainWindow::onStartCalcButton()
     verifyShowChars(uiData);
 
     emit triggerCalculate();
+}
+
+void MainWindow::onBinaryAlgoSelect()
+{
+    if(ui->binaryNumberRepresentationCheckBox->isChecked())
+    {
+        ui->realNumberRepresentationCheckBox->setCheckState(Qt::CheckState::Unchecked);
+
+        auto& uiData = uiDataHolder.getRef();
+
+        setBinaryCrossoverAlgoNames(ui->crossoverAlgoComboBox, uiData);
+        connect(ui->crossoverAlgoComboBox, &QComboBox::currentIndexChanged, this,
+                &MainWindow::crossoverStrategyChangeValue);
+
+        ui->crossingPropabilityLine->setText(QString::number(uiData.crossingPropablity));
+        ui->crossingPropabilityLine->setValidator(
+            new QRegularExpressionValidator(QRegularExpression{floatExpression}, this));
+        crossoverStrategyChangeValue();
+
+        setBinaryMutationAlgoNames(ui->mutationAlgoComboBox, uiData);
+        ui->mutationProbabilityLine->setText(QString::number(uiData.mutationPropablity));
+        ui->mutationProbabilityLine->setValidator(
+            new QRegularExpressionValidator(QRegularExpression{floatExpression}, this));
+    }
+    else
+    {
+        ui->realNumberRepresentationCheckBox->setCheckState(Qt::CheckState::Checked);
+        disconnect(ui->crossoverAlgoComboBox, &QComboBox::currentIndexChanged, this,
+                   &MainWindow::crossoverStrategyChangeValue);
+    }
+}
+
+void MainWindow::onRealAlgoSelect()
+{
+    if(ui->realNumberRepresentationCheckBox->isChecked())
+    {
+        ui->binaryNumberRepresentationCheckBox->setCheckState(Qt::CheckState::Unchecked);
+
+        auto& uiData = uiDataHolder.getRef();
+
+        setRealCrossoverAlgoNames(ui->crossoverAlgoComboBox, uiData);
+        setRealMutationAlgoNames(ui->mutationAlgoComboBox, uiData);
+    }
+    else
+    {
+        ui->binaryNumberRepresentationCheckBox->setCheckState(Qt::CheckState::Checked);
+    }
 }
 
 void MainWindow::verifyRandomSeed(UiData &uiData)
@@ -483,6 +579,23 @@ void MainWindow::verifyGenerations(UiData &uiData)
     }
 }
 
+void MainWindow::verifyAlgorithmType(UiData &uiData)
+{
+    if (ui->binaryNumberRepresentationCheckBox->isChecked())
+    {
+        uiData.algorithmType = AlgorithmType::BINARY_ALGO_TYPE;
+    }
+    else if (ui->realNumberRepresentationCheckBox->isChecked())
+    {
+        uiData.algorithmType = AlgorithmType::REAL_ALGO_TYPE;
+    }
+    else
+    {
+        qDebug() << "No choose algorithm type";
+        faultsManager.updateFault(Faults::INPUT_ALGORITHM_PARAMETRS_ERROR, true);
+    }
+}
+
 void MainWindow::verifySelectAlgo(UiData &uiData)
 {
     if(!verifySelectAlgoBox(ui->selectAlgoNameComboBox, uiData))
@@ -599,27 +712,43 @@ bool MainWindow::verifyCrossoverAlgoBox(QComboBox *comboBox, UiData &uiData)
 {
     bool result = true;
     qDebug() << "Choose crossover algorithm" << comboBox->currentText();
-    switch (comboBox->currentIndex())
+    if (uiData.algorithmType == AlgorithmType::BINARY_ALGO_TYPE)
     {
-    case static_cast<qint32>(CrossoverAlgoId::SINGLE_POINT):
-        uiData.crossoverAlgoIndex =
-            static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::SINGLE_POINT);
-        break;
-    case static_cast<qint32>(CrossoverAlgoId::TWO_POINT):
-        uiData.crossoverAlgoIndex =
-            static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::TWO_POINT);
-        break;
-    case static_cast<qint32>(CrossoverAlgoId::UNIFORM):
-        uiData.crossoverAlgoIndex =
-            static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::UNIFORM);
-        break;
-    case static_cast<qint32>(CrossoverAlgoId::DISCRETE):
-        uiData.crossoverAlgoIndex =
-            static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::DISCRETE);
-        break;
-    default:
-        result = false;
-        break;
+        switch (comboBox->currentIndex())
+        {
+        case static_cast<qint32>(CrossoverAlgoId::SINGLE_POINT):
+            uiData.crossoverAlgoIndex =
+                static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::SINGLE_POINT);
+            break;
+        case static_cast<qint32>(CrossoverAlgoId::TWO_POINT):
+            uiData.crossoverAlgoIndex =
+                static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::TWO_POINT);
+            break;
+        case static_cast<qint32>(CrossoverAlgoId::UNIFORM):
+            uiData.crossoverAlgoIndex =
+                static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::UNIFORM);
+            break;
+        case static_cast<qint32>(CrossoverAlgoId::DISCRETE):
+            uiData.crossoverAlgoIndex =
+                static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::DISCRETE);
+            break;
+        default:
+            result = false;
+            break;
+        }
+    }
+    else
+    {
+        if (comboBox->currentIndex() == (static_cast<qint32>(CrossoverAlgoId::ARITMETIC) -
+                                         static_cast<qint32>(uiData.crossoverBinaryAlgoQuantity)))
+        {
+            uiData.crossoverAlgoIndex =
+                static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::ARITMETIC);
+        }
+        else
+        {
+            result = false;
+        }
     }
     return result;
 }
@@ -655,27 +784,49 @@ bool MainWindow::verifyMutationAlgoBox(QComboBox *comboBox, UiData &uiData)
 {
     bool result = true;
     qDebug() << "Choose mutation algorithm" << comboBox->currentText();
-    switch (comboBox->currentIndex())
+    if (uiData.algorithmType == AlgorithmType::BINARY_ALGO_TYPE)
     {
-    case static_cast<qint32>(MutationAlgoId::EDGE_MUTATION):
-        uiData.mutationAlgoIndex =
-            static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::EDGE_MUTATION);
-        break;
-    case static_cast<qint32>(MutationAlgoId::ONE_POINT_MUTATION):
-        uiData.mutationAlgoIndex =
-            static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::ONE_POINT_MUTATION);
-        break;
-    case static_cast<qint32>(MutationAlgoId::TWO_POINT_MUTATION):
-        uiData.mutationAlgoIndex =
-            static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::TWO_POINT_MUTATION);
-        break;
-    case static_cast<qint32>(MutationAlgoId::INWERSE_MUTATION):
-        uiData.mutationAlgoIndex =
-            static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::INWERSE_MUTATION);
-        break;
-    default:
-        result = false;
-        break;
+        switch (comboBox->currentIndex())
+        {
+        case static_cast<qint32>(MutationAlgoId::EDGE_MUTATION):
+            uiData.mutationAlgoIndex =
+                static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::EDGE_MUTATION);
+            break;
+        case static_cast<qint32>(MutationAlgoId::ONE_POINT_MUTATION):
+            uiData.mutationAlgoIndex =
+                static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::ONE_POINT_MUTATION);
+            break;
+        case static_cast<qint32>(MutationAlgoId::TWO_POINT_MUTATION):
+            uiData.mutationAlgoIndex =
+                static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::TWO_POINT_MUTATION);
+            break;
+        case static_cast<qint32>(MutationAlgoId::INWERSE_MUTATION):
+            uiData.mutationAlgoIndex =
+                static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::INWERSE_MUTATION);
+            break;
+        default:
+            result = false;
+            break;
+        }
+    }
+    else
+    {
+        if (comboBox->currentIndex() == (static_cast<qint32>(MutationAlgoId::UNIFORM_MUTATION) -
+                                         static_cast<qint32>(uiData.mutationBinaryAlgoQuantity)))
+        {
+            uiData.mutationAlgoIndex =
+                static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::UNIFORM_MUTATION);
+        }
+        else if (comboBox->currentIndex() == (static_cast<qint32>(MutationAlgoId::GAUSS_MUTATION) -
+                                                static_cast<qint32>(uiData.mutationBinaryAlgoQuantity)))
+        {
+            uiData.mutationAlgoIndex =
+                static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::GAUSS_MUTATION);
+        }
+        else
+        {
+            result = false;
+        }
     }
     return result;
 }

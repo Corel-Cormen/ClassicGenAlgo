@@ -10,6 +10,9 @@ enum class MutationAlgoId : quint8
     ONE_POINT_MUTATION,
     TWO_POINT_MUTATION,
     INWERSE_MUTATION,
+
+    UNIFORM_MUTATION,
+    GAUSS_MUTATION,
 };
 
 template <typename Base>

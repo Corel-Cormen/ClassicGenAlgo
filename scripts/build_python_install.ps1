@@ -35,7 +35,8 @@ if (-not (Test-Path -Path $PyPath)) {
     & $PyExe -m pip install --no-deps --no-cache-dir `
         --disable-pip-version-check --no-warn-script-location `
         scipy benchmark_functions matplotlib Pillow pyparsing opfunu setuptools `
-        cycler kiwisolver packaging python-dateutil requests
+        cycler kiwisolver packaging python-dateutil requests `
+        six urllib3 idna certifi
 
 } else {
     Write-Host "Python directory already exists"

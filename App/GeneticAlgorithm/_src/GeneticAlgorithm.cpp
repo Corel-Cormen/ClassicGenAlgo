@@ -28,7 +28,9 @@ bool GeneticAlgorithm::setupInitial()
     auto& uiData = uiDataHolder.getRef();
     uiData.selectAlgoNames = getAlgoName<SelectPopulationStrategy>();
     uiData.crossoverAlgoNames = getAlgoName<CrossoverPopulationStrategy>();
+    uiData.crossoverBinaryAlgoQuantity = 4U;
     uiData.mutationAlgoNames = getAlgoName<MutationPopulationStrategy>();
+    uiData.mutationBinaryAlgoQuantity = 4U;
 
     return initEnvironment();
 }
@@ -247,6 +249,9 @@ void GeneticAlgorithm::createCrossoverPopulationStrategy(const UiData& uiData)
     case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::DISCRETE):
         setCrossoverPopulationStrategy<DiscreteCrossover>(random);
         break;
+    case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::ARITMETIC):
+        setCrossoverPopulationStrategy<ArithmeticCrossover>(random);
+        break;
     default:
         qDebug() << "No choose crossover strategy";
     }
@@ -266,6 +271,12 @@ void GeneticAlgorithm::createMutationPopulationStrategy(const UiData& uiData)
         break;
     case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::INWERSE_MUTATION):
         setMutationPopulationStrategy<InwerseMutationAlgo>(random);
+        break;
+    case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::UNIFORM_MUTATION):
+        setMutationPopulationStrategy<UniformMutationAlgo>(random);
+        break;
+    case static_cast<decltype(uiData.mutationAlgoIndex)>(MutationAlgoId::GAUSS_MUTATION):
+        setMutationPopulationStrategy<GaussMutationAlgo>(random);
         break;
     default:
         qDebug() << "No choose mutation strategy";

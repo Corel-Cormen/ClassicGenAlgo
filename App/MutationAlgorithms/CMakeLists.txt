@@ -5,10 +5,14 @@ add_library(MutationAlgorithms STATIC
     _api/OnePointMutationAlgo.hpp
     _api/TwoPointMutationAlgo.hpp
     _api/InwerseMutationAlgo.hpp
+    _api/UniformMutationAlgo.hpp
+    _api/GaussMutationAlgo.hpp
     _src/EdgeMutationAlgo.cpp
     _src/OnePointMutationAlgo.cpp
     _src/TwoPointMutationAlgo.cpp
     _src/InwerseMutationAlgo.cpp
+    _src/UniformMutationAlgo.cpp
+    _src/GaussMutationAlgo.cpp
 )
 
 target_link_libraries(MutationAlgorithms
