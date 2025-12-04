@@ -1,5 +1,4 @@
 #include "ArithmeticCrossover.hpp"
-
 #include "RandomCore.hpp"
 
 ArithmeticCrossover::ArithmeticCrossover(const RandomCore &randomRef) :
@@ -8,11 +7,13 @@ ArithmeticCrossover::ArithmeticCrossover(const RandomCore &randomRef) :
 {}
 
 bool ArithmeticCrossover::crossover_impl(const UiData &uiData,
-                                       const GA::Types::GenomePoint &g1,
-                                       const GA::Types::GenomePoint &g2,
-                                       GA::Types::GenomePoint &out1,
-                                       GA::Types::GenomePoint &out2)
+                                         const GA::Types::GenomePoint &g1,
+                                         const GA::Types::GenomePoint &g2,
+                                         GA::Types::GenomePoint &out1,
+                                         GA::Types::GenomePoint &out2)
 {
+    (void) uiData;
+
     const qreal alpha = random.randUnit<qreal>();
     out1 = g1;
     out2 = g2;

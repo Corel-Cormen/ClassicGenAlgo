@@ -1,7 +1,6 @@
-#include "DiscreteCrossover.hpp"
-
-#include "RandomCore.hpp"
 #include "CommonFunctions.hpp"
+#include "DiscreteCrossover.hpp"
+#include "RandomCore.hpp"
 
 DiscreteCrossover::DiscreteCrossover(const RandomCore &randomRef) :
     CrossoverIndexBase(),

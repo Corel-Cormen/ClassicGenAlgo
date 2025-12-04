@@ -1,7 +1,6 @@
-#include "UniformCrossover.hpp"
-
-#include "RandomCore.hpp"
 #include "CommonFunctions.hpp"
+#include "UniformCrossover.hpp"
+#include "RandomCore.hpp"
 
 UniformCrossover::UniformCrossover(const RandomCore &randomRef) :
     CrossoverIndexBase(),

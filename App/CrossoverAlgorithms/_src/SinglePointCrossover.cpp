@@ -1,5 +1,4 @@
 #include "SinglePointCrossover.hpp"
-
 #include "RandomCore.hpp"
 
 SinglePointCrossover::SinglePointCrossover(const RandomCore &randomRef) :

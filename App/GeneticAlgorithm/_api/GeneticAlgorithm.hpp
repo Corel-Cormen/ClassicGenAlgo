@@ -6,13 +6,17 @@
 #include <QString>
 
 #include "ArithmeticCrossover.hpp"
+#include "AveragingCrossover.hpp"
 #include "BestSelectionAlgo.hpp"
+#include "BlendAlphaBetaCrossover.hpp"
+#include "BlendAlphaCrossover.hpp"
 #include "DiscreteCrossover.hpp"
 #include "EdgeMutationAlgo.hpp"
 #include "GaussMutationAlgo.hpp"
 #include "GeneticAlgorithmInterface.hpp"
 #include "GeneticAlgorithmTypes.hpp"
 #include "InwerseMutationAlgo.hpp"
+#include "LinearCrossover.hpp"
 #include "OnePointMutationAlgo.hpp"
 #include "PyFunctionEvaluateAlgo.hpp"
 #include "RandomCore.hpp"
@@ -73,7 +77,11 @@ private:
                                                      TwoPointCrossover,
                                                      UniformCrossover,
                                                      DiscreteCrossover,
-                                                     ArithmeticCrossover>;
+                                                     ArithmeticCrossover,
+                                                     LinearCrossover,
+                                                     BlendAlphaCrossover,
+                                                     BlendAlphaBetaCrossover,
+                                                     AveragingCrossover>;
     std::optional<CrossoverPopulationStrategy> crossoverPopulationStrategy;
 
     using MutationPopulationStrategy = std::variant<EdgeMutationAlgo,

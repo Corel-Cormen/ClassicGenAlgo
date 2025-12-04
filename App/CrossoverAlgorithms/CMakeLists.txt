@@ -6,11 +6,19 @@ add_library(CrossoverAlgorithms STATIC
     _api/UniformCrossover.hpp
     _api/DiscreteCrossover.hpp
     _api/ArithmeticCrossover.hpp
+    _api/AveragingCrossover.hpp
+    _api/BlendAlphaCrossover.hpp
+    _api/BlendAlphaBetaCrossover.hpp
+    _api/LinearCrossover.hpp
     _src/SinglePointCrossover.cpp
     _src/TwoPointCrossover.cpp
     _src/UniformCrossover.cpp
     _src/DiscreteCrossover.cpp
     _src/ArithmeticCrossover.cpp
+    _src/AveragingCrossover.cpp
+    _src/BlendAlphaCrossover.cpp
+    _src/BlendAlphaBetaCrossover.cpp
+    _src/LinearCrossover.cpp
 )
 
 target_link_libraries(CrossoverAlgorithms
@@ -19,6 +27,7 @@ target_link_libraries(CrossoverAlgorithms
     PRIVATE
     AppTypes
     CommonFunctions
+    EvaluateAlgorithms
     RandomCore
     UiDataHolder
 )

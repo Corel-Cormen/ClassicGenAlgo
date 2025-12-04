@@ -13,8 +13,8 @@ enum class CrossoverAlgoId : quint8
 
     ARITMETIC,
     LINEAR,
-    ALPHA_HYBRID,
-    ALPHA_BETA_HYBRID,
+    BLEND_ALPHA,
+    BLEND_ALPHA_BETA,
     AVERAGING,
 };
 

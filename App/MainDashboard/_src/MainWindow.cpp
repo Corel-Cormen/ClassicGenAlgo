@@ -330,6 +330,18 @@ void MainWindow::setRealCrossoverAlgoNames(QComboBox *comboBox, const UiData &ui
         case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::ARITMETIC):
             comboBox->addItem("Arythmetic");
             break;
+        case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::LINEAR):
+            comboBox->addItem("Linear");
+            break;
+        case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::BLEND_ALPHA):
+            comboBox->addItem("Blend Alpha");
+            break;
+        case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::BLEND_ALPHA_BETA):
+            comboBox->addItem("Blend Alpha-Beta");
+            break;
+        case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::AVERAGING):
+            comboBox->addItem("Averaging");
+            break;
         default:
             qDebug() << "Add crossover algorithm not found ID:" << uiData.crossoverAlgoNames[idx];
             break;
@@ -744,6 +756,30 @@ bool MainWindow::verifyCrossoverAlgoBox(QComboBox *comboBox, UiData &uiData)
         {
             uiData.crossoverAlgoIndex =
                 static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::ARITMETIC);
+        }
+        else if (comboBox->currentIndex() == (static_cast<qint32>(CrossoverAlgoId::LINEAR) -
+                                              static_cast<qint32>(uiData.crossoverBinaryAlgoQuantity)))
+        {
+            uiData.crossoverAlgoIndex =
+                static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::LINEAR);
+        }
+        else if (comboBox->currentIndex() == (static_cast<qint32>(CrossoverAlgoId::BLEND_ALPHA) -
+                                              static_cast<qint32>(uiData.crossoverBinaryAlgoQuantity)))
+        {
+            uiData.crossoverAlgoIndex =
+                static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::BLEND_ALPHA);
+        }
+        else if (comboBox->currentIndex() == (static_cast<qint32>(CrossoverAlgoId::BLEND_ALPHA_BETA) -
+                                              static_cast<qint32>(uiData.crossoverBinaryAlgoQuantity)))
+        {
+            uiData.crossoverAlgoIndex =
+                static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::BLEND_ALPHA_BETA);
+        }
+        else if (comboBox->currentIndex() == (static_cast<qint32>(CrossoverAlgoId::AVERAGING) -
+                                              static_cast<qint32>(uiData.crossoverBinaryAlgoQuantity)))
+        {
+            uiData.crossoverAlgoIndex =
+                static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::AVERAGING);
         }
         else
         {

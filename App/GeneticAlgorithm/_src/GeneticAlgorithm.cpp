@@ -114,6 +114,9 @@ bool GeneticAlgorithm::calculate()
                 {
                     algoLogger.colectData(genomeVec);
                     const auto& minVec = algoLogger.min();
+                    qDebug() << "min point =" << minVec[minVec.size()-1].point;
+                    qDebug() << "min value =" << minVec[minVec.size()-1].value;
+
                     pyInterface.showPlot(minVec[minVec.size()-1],
                                          pathResultSave + "/function_plot.png",
                                          uiData.showCharts);
@@ -251,6 +254,18 @@ void GeneticAlgorithm::createCrossoverPopulationStrategy(const UiData& uiData)
         break;
     case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::ARITMETIC):
         setCrossoverPopulationStrategy<ArithmeticCrossover>(random);
+        break;
+    case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::LINEAR):
+        setCrossoverPopulationStrategy<LinearCrossover>(std::get<PyFunctionEvaluateAlgo>(*evaluatePopulationStrategy));
+        break;
+    case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::BLEND_ALPHA):
+        setCrossoverPopulationStrategy<BlendAlphaCrossover>(random);
+        break;
+    case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::BLEND_ALPHA_BETA):
+        setCrossoverPopulationStrategy<BlendAlphaBetaCrossover>(random);
+        break;
+    case static_cast<decltype(uiData.crossoverAlgoIndex)>(CrossoverAlgoId::AVERAGING):
+        setCrossoverPopulationStrategy<AveragingCrossover>();
         break;
     default:
         qDebug() << "No choose crossover strategy";
